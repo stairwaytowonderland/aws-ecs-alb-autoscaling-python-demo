@@ -1,0 +1,79 @@
+name: Deploy Docker
+
+on:
+  workflow_call:
+    inputs:
+      aws-account-id:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
+      oidc-role-name:
+        required: true
+        type: string
+      application-name:
+        required: true
+        type: string
+      docker-build-context:
+        required: false
+        type: string
+        default: '.'
+      dockerfile-path:
+        required: false
+        type: string
+        default: 'docker/Dockerfile'
+
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        region: [us-east-2]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+  handle-docker:
+    needs: [configure]
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        region: [us-east-2]
+    env:
+      ECR_REPOSITORY_URL: dkr.ecr.${{ matrix.region }}.amazonaws.com/${{ inputs.application-name }}
+    steps:
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Configure AWS credentials (OIDC)
+        if: ${{ inputs.oidc-role-name != '' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ inputs.aws-account-id }}:role/${{ inputs.oidc-role-name }}
+          aws-region: ${{ inputs.aws-region }}
+
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push Docker Image
+        shell: bash
+        run: |
+          # Build the image
+          docker build --no-cache --platform linux/amd64 -t ${{ inputs.application-name }} -f ${{ inputs.dockerfile-path }} ${{ inputs.docker-build-context }}
+
+          # Tag image
+          docker tag candidate-app ${{ env.ECR_REPOSITORY_URL }}:${{ github.sha }}
+
+          # Push to ECR
+          docker push ${{ env.ECR_REPOSITORY_URL }}:${{ github.sha }}

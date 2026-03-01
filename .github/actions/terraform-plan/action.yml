@@ -1,0 +1,47 @@
+name: "Terraform Plan"
+description: "Reusable composite action for Terraform plan"
+inputs:
+  working-directory:
+    description: "Directory to run Terraform in"
+    required: false
+  custom-directory:
+    description: "Custom directory to run Terraform in"
+    required: false
+  extra-init-args:
+    description: "Extra arguments for Terraform init"
+    required: false
+    default: ""
+  extra-plan-args:
+    description: "Extra arguments for Terraform plan"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Terraform Init
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.custom-directory }}" -a "${{ inputs.custom-directory }}x" != "x" ]; then
+          cd ${{ inputs.custom-directory }}
+        fi
+        echo "Running Terraform init in $(pwd)"
+        command="terraform init -input=false ${{ inputs.extra-init-args }}"
+        printf "\033[1;34m%s\033[0m\n" $(echo ${command})
+        ${command}
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        TF_IN_AUTOMATION: true
+    - name: Terraform Plan
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.custom-directory }}" -a "${{ inputs.custom-directory }}x" != "x" ]; then
+          cd ${{ inputs.custom-directory }}
+        fi
+        echo "Running Terraform plan in $(pwd)"
+        command="terraform plan -input=false ${{ inputs.extra-plan-args }}"
+        printf "\033[1;34m%s\033[0m\n" ${command}
+        ${command}
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        TF_IN_AUTOMATION: true

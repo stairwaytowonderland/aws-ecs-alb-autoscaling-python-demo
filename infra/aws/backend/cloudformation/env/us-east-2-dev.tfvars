@@ -1,0 +1,6 @@
+mode             = "create"
+aws_region       = "us-east-2"
+environment      = "nonprod"
+application_name = "candidate-app"
+filename         = "templates/backend.yaml.tftpl"
+owner_name       = "Andrew Haller"

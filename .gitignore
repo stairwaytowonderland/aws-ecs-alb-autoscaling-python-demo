@@ -1,0 +1,29 @@
+# OS
+.DS_Store
+*.bak
+*.old
+*.orig
+*.private
+*.bin
+*.zip
+*.tgz
+*.tar.gz
+
+# IDE
+.vscode/
+
+# APP
+*.env
+*.pem
+
+# TERRAFORM
+*.auto.*
+*.tfstate
+*.tfstate.*
+.terraform
+infra/modules/**/.terraform.lock.hcl
+infra/aws/**/cloudformation/**/.terraform.lock.hcl
+
+# PYTHON
+__pycache__/
+.venv/

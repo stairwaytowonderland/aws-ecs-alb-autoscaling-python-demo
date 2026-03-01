@@ -1,0 +1,194 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Terraform Backend Infrastructure - S3 Bucket and DynamoDB Tables for State Management'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: ${environment}
+    AllowedValues:
+      - dev
+      - nonprod
+      - prod
+    Description: Environment name
+
+  ApplicationName:
+    Type: String
+    Default: ${application_name}
+    Description: Name of the application
+
+  Owner:
+    Type: String
+    Default: '${owner}'
+    Description: Owner of the resources
+
+Conditions:
+  HasOwner: !Not [!Equals [!Ref Owner, '']]
+
+Resources:
+  # S3 Bucket for Terraform State
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub '$${Environment}-$${AWS::Region}-$${ApplicationName}-tfstate-bucket'
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+  # DynamoDB Table for Bootstrap State Lock
+  BootstrapStateLockTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '$${Environment}-$${AWS::Region}-$${ApplicationName}-bootstrap-tfstate-lock'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: Purpose
+          Value: bootstrap
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+  # DynamoDB Table for Platform State Lock
+  PlatformStateLockTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '$${Environment}-$${AWS::Region}-$${ApplicationName}-platform-tfstate-lock'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: Purpose
+          Value: platform
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+  # DynamoDB Table for Application State Lock
+  ApplicationStateLockTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: !Sub '$${Environment}-$${AWS::Region}-$${ApplicationName}-application-tfstate-lock'
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: LockID
+          AttributeType: S
+      KeySchema:
+        - AttributeName: LockID
+          KeyType: HASH
+      Tags:
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: Purpose
+          Value: application
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+Outputs:
+  StateBucketName:
+    Description: Name of the S3 bucket for Terraform state
+    Value: !Ref TerraformStateBucket
+    Export:
+      Name: !Sub '$${AWS::StackName}-StateBucketName'
+
+  StateBucketArn:
+    Description: ARN of the S3 bucket for Terraform state
+    Value: !GetAtt TerraformStateBucket.Arn
+    Export:
+      Name: !Sub '$${AWS::StackName}-StateBucketArn'
+
+  BootstrapLockTableName:
+    Description: Name of the DynamoDB table for bootstrap state locking
+    Value: !Ref BootstrapStateLockTable
+    Export:
+      Name: !Sub '$${AWS::StackName}-BootstrapLockTableName'
+
+  PlatformLockTableName:
+    Description: Name of the DynamoDB table for platform state locking
+    Value: !Ref PlatformStateLockTable
+    Export:
+      Name: !Sub '$${AWS::StackName}-PlatformLockTableName'
+
+  ApplicationLockTableName:
+    Description: Name of the DynamoDB table for application state locking
+    Value: !Ref ApplicationStateLockTable
+    Export:
+      Name: !Sub '$${AWS::StackName}-ApplicationLockTableName'
+
+  BackendConfigBootstrap:
+    Description: Backend configuration for bootstrap module
+    Value: !Sub |
+      region         = "$${AWS::Region}"
+      bucket         = "$${TerraformStateBucket}"
+      key            = "bootstrap/terraform.tfstate"
+      dynamodb_table = "$${BootstrapStateLockTable}"
+      encrypt        = true
+
+  BackendConfigPlatform:
+    Description: Backend configuration for platform module
+    Value: !Sub |
+      region         = "$${AWS::Region}"
+      bucket         = "$${TerraformStateBucket}"
+      key            = "platform/terraform.tfstate"
+      dynamodb_table = "$${PlatformStateLockTable}"
+      encrypt        = true
+
+  BackendConfigApplication:
+    Description: Backend configuration for application module
+    Value: !Sub |
+      region         = "$${AWS::Region}"
+      bucket         = "$${TerraformStateBucket}"
+      key            = "application/terraform.tfstate"
+      dynamodb_table = "$${ApplicationStateLockTable}"
+      encrypt        = true

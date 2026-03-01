@@ -1,0 +1,201 @@
+name: Deploy APP Infrastructure
+
+on:
+  push:
+    tags:
+      - 'v*'
+      - 'latest'
+    # branches:
+    #   - main
+    paths:
+      # - '.github/**'
+      - 'src/**'
+      - 'docker/**'
+      - 'infra/aws/app/**'
+      - 'infra/modules/alb/**'
+      - 'infra/modules/docker/**'
+      - 'infra/modules/dynamodb/**'
+      - 'infra/modules/ec2_autoscaling/**'
+      - '!infra/aws/platform/**'
+      - '!infra/modules/ecr/**'
+      - '!infra/modules/vpc/**'
+      - '!infra/modules/ec2_ami/**'
+  workflow_dispatch:
+    inputs:
+      plan:
+        description: 'Run Terraform plan'
+        required: false
+        type: boolean
+        default: true
+      apply:
+        description: 'Run Terraform apply'
+        required: false
+        type: boolean
+        default: false
+      destroy:
+        description: 'Run Terraform destroy'
+        required: false
+        type: boolean
+        default: false
+      approvers:
+        description: 'GitHub usernames of approvers (comma-separated)'
+        required: true
+        type: string
+      purpose:
+        description: 'Purpose of the deployment (e.g., platform, app)'
+        required: false
+        type: choice
+        options:
+          - platform
+          - application
+        default: 'app'
+      environment:
+        description: 'Deployment environment (e.g., dev, test, prod)'
+        required: false
+        type: choice
+        options:
+          - dev
+          # - test
+          # - prod
+      working-directory:
+        description: 'Working directory (Terraform run)'
+        required: false
+        type: string
+        default: '.'
+      custom-directory:
+        description: 'Custom directory (Terraform run)'
+        required: false
+        type: choice
+        options:
+          - infra/aws/app
+          - infra/aws/platform
+        default: 'infra/aws/app'
+      aws-region:
+        description: 'AWS region to deploy to'
+        required: false
+        type: choice
+        options:
+          # - us-east-1
+          - us-east-2
+        default: 'us-east-2'
+  workflow_call:
+    inputs:
+      working-directory:
+        required: false
+        type: string
+      custom-directory:
+        required: false
+        type: string
+      python-version:
+        required: true
+        type: string
+      terraform-version:
+        required: true
+        type: string
+      environment:
+        required: true
+        type: string
+      aws-region:
+        required: true
+        type: string
+        default: >
+          us-east-1
+          us-east-2
+      oidc-role-name:
+        required: true
+        type: string
+      application-name:
+        required: true
+        type: string
+      purpose:
+        required: true
+        type: string
+      plan:
+        required: true
+        type: boolean
+      apply:
+        required: true
+        type: boolean
+      destroy:
+        required: true
+        type: boolean
+      approvers:
+        required: true
+        type: string
+    secrets:
+      aws-account-id:
+        required: true
+
+env:
+  OIDC_ROLE_NAME: ci-provision-oidc-candidate-app
+  TERRAFORM_VERSION: latest
+  PYTHON_VERSION: '3.11'
+  APPLICATION_NAME: candidate-app
+  APPROVERS: andrewhaller
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+    outputs:
+      working-directory: ${{ steps.set-outputs.outputs.working_directory }}
+      custom-directory: ${{ steps.set-outputs.outputs.custom_directory }}
+      terraform-version: ${{ steps.set-outputs.outputs.terraform_version }}
+      python-version: ${{ steps.set-outputs.outputs.python_version }}
+      application-name: ${{ steps.set-outputs.outputs.application_name }}
+      purpose: ${{ steps.set-outputs.outputs.purpose }}
+      environment: ${{ steps.set-outputs.outputs.environment }}
+      oidc-role-name: ${{ steps.set-outputs.outputs.oidc_role_name }}
+      approvers: ${{ steps.set-outputs.outputs.approvers }}
+      matrix: ${{ steps.prepare-matrix.outputs.matrix }}
+    steps:
+      - name: Set Outputs
+        id: set-outputs
+        run: |
+          echo "working_directory=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.working-directory) || inputs.working-directory }}" >> $GITHUB_OUTPUT
+          echo "custom_directory=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.custom-directory) || inputs.custom-directory }}" >> $GITHUB_OUTPUT
+          echo "terraform_version=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.terraform-version) || env.TERRAFORM_VERSION }}" >> $GITHUB_OUTPUT
+          echo "python_version=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.python-version) || env.PYTHON_VERSION }}" >> $GITHUB_OUTPUT
+          echo "application_name=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.application-name) || env.APPLICATION_NAME }}" >> $GITHUB_OUTPUT
+          echo "purpose=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.purpose) || inputs.purpose }}" >> $GITHUB_OUTPUT
+          echo "environment=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.environment) || inputs.environment }}" >> $GITHUB_OUTPUT
+          echo "oidc_role_name=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.oidc-role-name) || env.OIDC_ROLE_NAME }}" >> $GITHUB_OUTPUT
+          echo "approvers=${{ (github.event_name == 'workflow_dispatch' && github.event.inputs.approvers) || inputs.approvers }}" >> $GITHUB_OUTPUT
+
+      - name: Prepare Matrix
+        id: prepare-matrix
+        run: |
+          regions='['
+          for region in ${{ steps.set-outputs.outputs.aws_region || 'us-east-2' }}; do
+            regions+="\"${region}\","
+          done
+          regions=${regions%,}
+          regions+=']'
+          matrix=$(jq -cn --argjson regions "$regions" '{region: $regions}')
+          echo "matrix=$matrix" >> $GITHUB_OUTPUT
+
+  deploy-app:
+    name: "deploy-app-${{ needs.configure.outputs.environment }}"
+    needs: [configure]
+    uses: ./.github/workflows/terraform-deploy.yml
+    strategy:
+      matrix:
+        region: ${{ fromJson(needs.configure.outputs.matrix).region }}
+    with:
+      aws-region: ${{ matrix.region }}
+      working-directory: ${{ needs.configure.outputs.working-directory }}
+      custom-directory: ${{ needs.configure.outputs.custom-directory }}
+      terraform-version: ${{ needs.configure.outputs.terraform-version }}
+      environment: ${{ needs.configure.outputs.environment }}
+      oidc-role-name: ${{ needs.configure.outputs.oidc-role-name }}
+      application-name: ${{ needs.configure.outputs.application-name }}
+      purpose: ${{ needs.configure.outputs.purpose }}
+      approvers: ${{ needs.configure.outputs.approvers }}
+      plan: ${{ (inputs.plan && github.event_name != 'workflow_dispatch') || (github.event.inputs.plan == 'true' || github.event.inputs.apply == 'true') }}
+      apply: ${{ (inputs.apply && github.event_name != 'workflow_dispatch') || github.event.inputs.apply == 'true' }}
+      destroy: ${{ (inputs.destroy && github.event_name == 'workflow_dispatch') && github.event.inputs.destroy == 'true' }}
+    secrets:
+      aws-account-id: ${{ secrets.aws-account-id || secrets.AWS_ACCOUNT_ID }}
+    permissions:
+      id-token: write
+      contents: read
+      issues: write

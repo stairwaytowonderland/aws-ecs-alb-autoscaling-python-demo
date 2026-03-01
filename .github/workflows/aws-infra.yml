@@ -1,0 +1,118 @@
+name: Deploy AWS Infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      # - '.github/**'
+      - 'infra/aws/platform/**'
+      - 'infra/modules/ecr/**'
+      - 'infra/modules/vpc/**'
+      - 'infra/modules/ec2_ami/**'
+      - '!src/**'
+      - '!docker/**'
+      - '!infra/aws/app/**'
+      - '!infra/modules/alb/**'
+      - '!infra/modules/docker/**'
+      - '!infra/modules/dynamodb/**'
+      - '!infra/modules/ec2_autoscaling/**'
+  workflow_dispatch:
+    inputs:
+      plan:
+        description: 'Run Terraform plan'
+        required: false
+        type: boolean
+        default: true
+      apply:
+        description: 'Run Terraform apply'
+        required: false
+        type: boolean
+        default: false
+      destroy:
+        description: 'Run Terraform destroy'
+        required: false
+        type: boolean
+        default: false
+
+env:
+  OIDC_ROLE_NAME: ci-provision-oidc-candidate-app
+  TERRAFORM_VERSION: latest
+  PYTHON_VERSION: '3.11'
+  APPLICATION_NAME: candidate-app
+  APPROVERS: andrewhaller
+
+jobs:
+  configure:
+    runs-on: ubuntu-latest
+
+    outputs:
+      terraform-version: ${{ steps.set-outputs.outputs.terraform_version }}
+      python-version: ${{ steps.set-outputs.outputs.python_version }}
+      oidc-role-name: ${{ steps.set-outputs.outputs.oidc_role_name }}
+      application-name: ${{ steps.set-outputs.outputs.application_name }}
+      approvers: ${{ steps.set-outputs.outputs.approvers }}
+
+    steps:
+      - name: Set Outputs
+        id: set-outputs
+        run: |
+          echo "terraform_version=${{ env.TERRAFORM_VERSION }}" >> $GITHUB_OUTPUT
+          echo "python_version=${{ env.PYTHON_VERSION }}" >> $GITHUB_OUTPUT
+          echo "oidc_role_name=${{ env.OIDC_ROLE_NAME }}" >> $GITHUB_OUTPUT
+          echo "application_name=${{ env.APPLICATION_NAME }}" >> $GITHUB_OUTPUT
+          echo "approvers=${{ env.APPROVERS }}" >> $GITHUB_OUTPUT
+
+  deploy-platform-dev:
+    needs: [configure]
+    uses: ./.github/workflows/terraform-deploy.yml
+    strategy:
+      matrix:
+        region: [us-east-2]
+    with:
+      working-directory: infra/aws/platform
+      terraform-version: ${{ needs.configure.outputs.terraform-version }}
+      environment: dev
+      aws-region: ${{ matrix.region }}
+      oidc-role-name: ${{ needs.configure.outputs.oidc-role-name }}
+      application-name: ${{ needs.configure.outputs.application-name }}
+      purpose: platform
+      approvers: ${{ needs.configure.outputs.approvers }}
+      plan: ${{ github.event_name != 'workflow_dispatch' || (github.event.inputs.plan == 'true' || github.event.inputs.apply == 'true') }}
+      apply: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.apply == 'true' }}
+      destroy: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.destroy == 'true' }}
+    secrets:
+      aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+
+    permissions:
+      id-token: write
+      contents: read
+      issues: write
+
+  deploy-app-dev:
+    needs: [configure, deploy-platform-dev]
+    if: ${{ github.event_name != 'workflow_dispatch' || (github.event.inputs.apply == 'true' && github.event.inputs.destroy != 'true') }}
+    uses: ./.github/workflows/app.yml
+    strategy:
+      matrix:
+        region: [us-east-2]
+    with:
+      working-directory: '.'
+      custom-directory: infra/aws/app
+      python-version: ${{ needs.configure.outputs.python-version }}
+      terraform-version: ${{ needs.configure.outputs.terraform-version }}
+      environment: dev
+      aws-region: ${{ matrix.region }}
+      oidc-role-name: ${{ needs.configure.outputs.oidc-role-name }}
+      application-name: ${{ needs.configure.outputs.application-name }}
+      purpose: application
+      approvers: ${{ needs.configure.outputs.approvers }}
+      plan: ${{ github.event_name != 'workflow_dispatch' || (github.event.inputs.plan == 'true' && github.event.inputs.destroy != 'true') }}
+      apply: ${{ github.event_name != 'workflow_dispatch' || (github.event.inputs.apply == 'true' && github.event.inputs.destroy != 'true') }}
+      destroy: false # Destroy should be handled by the individual workflows, since things need to be destroyed in the reverse order of creation
+    secrets:
+      aws-account-id: ${{ secrets.AWS_ACCOUNT_ID }}
+    permissions:
+      id-token: write
+      contents: read
+      issues: write

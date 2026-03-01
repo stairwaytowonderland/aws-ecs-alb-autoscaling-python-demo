@@ -1,0 +1,47 @@
+name: "Terraform Apply"
+description: "Reusable composite action for Terraform apply"
+inputs:
+  working-directory:
+    description: "Directory to run Terraform in"
+    required: false
+  custom-directory:
+    description: "Custom directory to run Terraform in"
+    required: false
+  extra-init-args:
+    description: "Extra arguments for Terraform init"
+    required: false
+    default: ""
+  extra-apply-args:
+    description: "Extra arguments for Terraform apply"
+    required: false
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+    - name: Terraform Init
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.custom-directory }}" -a "${{ inputs.custom-directory }}x" != "x" ]; then
+          cd ${{ inputs.custom-directory }}
+        fi
+        printf "Running Terraform init in '%s'\n" "$(pwd)"
+        command="terraform init -input=false ${{ inputs.extra-init-args }}"
+        printf "\033[1;34m%s\033[0m\n" ${command}
+        ${command}
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        TF_IN_AUTOMATION: true
+    - name: Terraform Apply
+      shell: bash
+      run: |
+        if [ -n "${{ inputs.custom-directory }}" -a "${{ inputs.custom-directory }}x" != "x" ]; then
+          cd ${{ inputs.custom-directory }}
+        fi
+        printf "Running Terraform apply in '%s'\n" "$(pwd)"
+        command="terraform apply -input=false -auto-approve ${{ inputs.extra-apply-args }}"
+        printf "\033[1;34m%s\033[0m\n" ${command}
+        ${command}
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        TF_IN_AUTOMATION: true

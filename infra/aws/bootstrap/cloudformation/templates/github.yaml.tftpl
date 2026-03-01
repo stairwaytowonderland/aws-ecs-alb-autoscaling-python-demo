@@ -1,0 +1,177 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Bootstrap Infrastructure - IAM OIDC Provider and Roles for GitHub Actions'
+
+Parameters:
+  Environment:
+    Type: String
+    Default: ${environment}
+    AllowedValues:
+      - dev
+      - nonprod
+      - prod
+    Description: Environment name
+
+  ApplicationName:
+    Type: String
+    Default: ${application_name}
+    Description: Name of the application
+
+  RoleNamePrefix:
+    Type: String
+    Default: ${role_name_prefix}
+    Description: Prefix for IAM role names
+
+  RepositoryOwner:
+    Type: String
+    Default: ${github_owner}
+    Description: GitHub organization or username
+
+  RepositoryName:
+    Type: String
+    Default: ${github_repo}
+    Description: GitHub repository name
+
+  CreateCLIRole:
+    Type: String
+    Default: '${create_cli_role}'
+    AllowedValues:
+      - 'true'
+      - 'false'
+    Description: Whether to create a CLI assumable role
+
+  Owner:
+    Type: String
+    Default: '${owner}'
+    Description: Owner of the resources
+
+Conditions:
+  HasOwner: !Not [!Equals [!Ref Owner, '']]
+  CreateCLIRole: !Equals [!Ref CreateCLIRole, 'true']
+
+Resources:
+  # GitHub OIDC Provider
+  GitHubOIDCProvider:
+    Type: AWS::IAM::OIDCProvider
+    Properties:
+      Url: https://token.actions.githubusercontent.com
+      ClientIdList:
+%{ for client_id in client_id_list ~}
+        - ${client_id}
+%{ endfor ~}
+      ThumbprintList:
+%{ for thumbprint in thumbprint_list ~}
+        - ${thumbprint}
+%{ endfor ~}
+      Tags:
+        - Key: Name
+          Value: github-oidc-provider
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+  # OIDC Role for GitHub Actions
+  GitHubActionsOIDCRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '$${RoleNamePrefix}-oidc-$${ApplicationName}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Federated: !GetAtt GitHubOIDCProvider.Arn
+            Action: sts:AssumeRoleWithWebIdentity
+            Condition:
+              StringLike:
+                token.actions.githubusercontent.com:sub:
+                  - !Sub 'repo:$${RepositoryOwner}/$${RepositoryName}:ref:refs/heads/main'
+                  - !Sub 'repo:$${RepositoryOwner}/$${RepositoryName}:ref:refs/tags/*'
+              StringEquals:
+                token.actions.githubusercontent.com:aud: sts.amazonaws.com
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Tags:
+        - Key: Name
+          Value: !Sub '$${RoleNamePrefix}-oidc-$${ApplicationName}'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+  # Bootstrap Role (optional CLI role)
+  BootstrapCLIRole:
+    Type: AWS::IAM::Role
+    Condition: CreateCLIRole
+    Properties:
+      RoleName: !Sub '$${RoleNamePrefix}-bootstrap-$${ApplicationName}'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: !Sub 'arn:aws:iam::$${AWS::AccountId}:root'
+            Action: sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+      Tags:
+        - Key: Name
+          Value: !Sub '$${RoleNamePrefix}-bootstrap-$${ApplicationName}'
+        - Key: Environment
+          Value: !Ref Environment
+        - Key: App
+          Value: !Ref ApplicationName
+        - Key: ManagedBy
+          Value: CloudFormation
+        - !If
+          - HasOwner
+          - Key: Owner
+            Value: !Ref Owner
+          - !Ref AWS::NoValue
+
+Outputs:
+  OIDCProviderArn:
+    Description: ARN of the GitHub OIDC Provider
+    Value: !GetAtt GitHubOIDCProvider.Arn
+    Export:
+      Name: !Sub '$${AWS::StackName}-OIDCProviderArn'
+
+  OIDCRoleName:
+    Description: Name of the OIDC role for GitHub Actions
+    Value: !Ref GitHubActionsOIDCRole
+    Export:
+      Name: !Sub '$${AWS::StackName}-OIDCRoleName'
+
+  OIDCRoleArn:
+    Description: ARN of the OIDC role for GitHub Actions
+    Value: !GetAtt GitHubActionsOIDCRole.Arn
+    Export:
+      Name: !Sub '$${AWS::StackName}-OIDCRoleArn'
+
+  BootstrapRoleName:
+    Condition: CreateCLIRole
+    Description: Name of the bootstrap CLI role
+    Value: !Ref BootstrapCLIRole
+    Export:
+      Name: !Sub '$${AWS::StackName}-BootstrapRoleName'
+
+  BootstrapRoleArn:
+    Condition: CreateCLIRole
+    Description: ARN of the bootstrap CLI role
+    Value: !GetAtt BootstrapCLIRole.Arn
+    Export:
+      Name: !Sub '$${AWS::StackName}-BootstrapRoleArn'
