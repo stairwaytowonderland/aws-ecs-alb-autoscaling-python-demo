@@ -9,13 +9,11 @@ export AWS_REGION="${REGION:-$AWS_DEFAULT_REGION}"
 export AWS_PROFILE="${AWS_PROFILE:-$AWS_DEFAULT_PROFILE}"
 
 ids() {
-  terraform -chdir="${SCRIPT_DIR}/../infra/aws/app" output -json ephemeral_instance_ids 2>/dev/null | jq '.[]' --raw-output || return $?
+  terraform -chdir="${SCRIPT_DIR}/../infra/aws/app" output -json ephemeral_instance_ids 2>/dev/null | jq '.[]' --raw-output
 }
 
 describe_ec2() {
-  if [ $# -gt 0 ]; then
-    aws ec2 describe-instances --profile "${AWS_PROFILE}" --instance-ids "$@" --region "${AWS_REGION}" --query Reservations[].Instances[].PublicDnsName --output json | jq '.[]' --raw-output
-  fi
+  aws ec2 describe-instances --profile "${AWS_PROFILE}" --instance-ids "$@" --region "${AWS_REGION}" --query Reservations[].Instances[].PublicDnsName --output json | jq '.[]' --raw-output
 }
 
 ssh_example() {
@@ -25,6 +23,7 @@ EOF
 }
 
 main() {
+  # shellcheck disable=SC2046  # We want word splitting here to pass multiple instance IDs to describe_ec2
   (set -x ; describe_ec2 $(ids)) | while read -r dns; do ssh_example "$dns"; done
 }
 

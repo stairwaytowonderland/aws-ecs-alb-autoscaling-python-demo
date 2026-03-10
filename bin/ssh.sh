@@ -18,9 +18,7 @@ if [ -z "$EC2_HOST" ]; then
 fi
 
 main() {
-  set -x
-
-  ssh -i "${SCRIPT_DIR}/../$EC2_PRIVATE_KEY_PEM_FILE" "${EC2_USER}@${EC2_HOST}"
+  (set -x ; ssh -i "${SCRIPT_DIR}/../$EC2_PRIVATE_KEY_PEM_FILE" "${EC2_USER}@${EC2_HOST}")
 }
 
 main "$@"
