@@ -1,4 +1,5 @@
-FROM python:3.11-slim AS builder
+ARG PYTHON_VERSION=3.12
+FROM python:${PYTHON_VERSION}-slim AS builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -13,18 +14,20 @@ RUN apt-get update && \
 	&& apt-get clean
 
 # Install dependencies
-COPY src/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY src/requirements requirements
+RUN pip install --no-cache-dir -r requirements/requirements-api.txt
 
 # Copy application code
 COPY src/ .
 
-FROM python:3.11-slim AS app
+# FROM python:3.11-slim AS app
+FROM ghcr.io/stairwaytowonderland/starter-project:builder-ubuntu-latest AS app
+ARG PYTHON_VERSION
 
 WORKDIR /app
 
 # Copy installed dependencies from the builder stage
-COPY --from=builder /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
+COPY --from=builder /usr/local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/site-packages
 COPY --from=builder /usr/local/bin /usr/local/bin
 COPY --from=builder /src .
 
@@ -39,4 +42,4 @@ ENV TC_DYNAMO_TABLE=Candidates
 EXPOSE 8000
 
 # Run the application with gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "app:candidates_app"]
+CMD ["gunicorn", "-b", "0.0.0.0:8000", "api:app"]
