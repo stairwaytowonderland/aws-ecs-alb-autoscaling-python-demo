@@ -11,7 +11,7 @@ oidc_policy_map = {
   AdministratorAccess = "arn:aws:iam::aws:policy/AdministratorAccess"
 }
 role_name_prefix = "ci-provision"
-application_name = "candidate-app"
+# application_name = "candidate-app"
 additional_tags = {
   Sandbox = true
   Owner   = "Andrew Haller"

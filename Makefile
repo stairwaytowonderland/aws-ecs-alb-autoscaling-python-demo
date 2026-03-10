@@ -6,8 +6,10 @@ AWS_DEFAULT_PROFILE := $(AWS_PROFILE) # For legacy compatibility
 AWS_REGION := $(shell echo $${AWS_REGION:-"us-east-2"})
 AWS_DEFAULT_REGION := $(AWS_REGION) # For boto3 and legacy compatibility
 TDOC := terraform-docs
-ENV_DEV := dev
-AUTO_BACKEND_EXT := auto.backend
+
+ENVIRONMENT := dev
+APP_NAME := app-demo-001
+AUTO_BACKEND_EXT := $(APP_NAME).auto.backend
 
 .PHONY: all
 all: init ## Entrypoint
@@ -124,111 +126,111 @@ aws-destroy-auto: .app-infra-destroy-auto .platform-infra-destroy-auto .bootstra
 .backend-infra:
 	( \
   cd infra/aws/backend; \
-  terraform init; \
-  TF_VAR_backend_vars_suffix=$(AUTO_BACKEND_EXT) terraform apply -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure; \
+  TF_VAR_backend_vars_suffix=$(AUTO_BACKEND_EXT) terraform apply -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .bootstrap-infra:
 	( \
   cd infra/aws/bootstrap; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform apply -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform apply -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .platform-infra:
 	( \
   cd infra/aws/platform; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform apply -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform apply -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .app-infra:
 	( \
   cd infra/aws/app; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform apply -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform apply -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .backend-infra-auto:
 	( \
   cd infra/aws/backend; \
-  terraform init; \
-  terraform apply -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure; \
+  terraform apply -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .bootstrap-infra-auto:
 	( \
   cd infra/aws/bootstrap; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform apply -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform apply -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .platform-infra-auto:
 	( \
   cd infra/aws/platform; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform apply -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform apply -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .app-infra-auto:
 	( \
   cd infra/aws/app; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform apply -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform apply -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .backend-infra-destroy:
 	( \
   cd infra/aws/backend; \
-  terraform init; \
-  terraform destroy -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure; \
+  terraform destroy -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .bootstrap-infra-destroy:
 	( \
   cd infra/aws/bootstrap; \
-  terraform init; \
-  terraform destroy -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure; \
+  terraform destroy -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .platform-infra-destroy:
 	( \
   cd infra/aws/platform; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform destroy -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform destroy -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .app-infra-destroy:
 	( \
   cd infra/aws/app; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform destroy -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform destroy -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .backend-infra-destroy-auto:
 	( \
   cd infra/aws/backend; \
-  terraform init; \
-  terraform destroy -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure; \
+  terraform destroy -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .bootstrap-infra-destroy-auto:
 	( \
   cd infra/aws/bootstrap; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform destroy -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform destroy -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .platform-infra-destroy-auto:
 	( \
   cd infra/aws/platform; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform destroy -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform destroy -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
 .app-infra-destroy-auto:
 	( \
   cd infra/aws/app; \
-  terraform init -backend-config=env/$(AWS_REGION)-$(ENV_DEV).$(AUTO_BACKEND_EXT); \
-  terraform destroy -auto-approve -var-file env/$(AWS_REGION)-$(ENV_DEV).tfvars; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
+  terraform destroy -auto-approve -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )

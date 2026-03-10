@@ -1,6 +1,6 @@
 aws_region       = "us-east-2"
 environment      = "dev"
-application_name = "candidate-app"
+# application_name = "candidate-app"
 additional_tags = {
   Sandbox = true
   Owner   = "Andrew Haller"

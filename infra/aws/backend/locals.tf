@@ -34,7 +34,7 @@ locals {
     encrypt        = true
   } }
 
-  backend_vars_suffix = "env/${local.region_name}-${var.environment}.${var.backend_vars_suffix}"
+  backend_vars_suffix = "env/${var.environment}-${local.region_name}.${var.application_name}.${var.backend_vars_suffix}"
 
   backend_configs_vars = { for k, v in local.backend_configs : k => merge(v, {
     filename_config = var.manage_backend_file ? "${path.module}/${dirname(local_file.backend_config[k].filename)}/${local.backend_vars_suffix}" : "${path.module}/${dirname(local.backend_configs[k].filename)}/${local.backend_vars_suffix}"

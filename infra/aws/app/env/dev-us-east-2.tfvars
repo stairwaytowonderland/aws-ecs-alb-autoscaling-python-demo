@@ -1,6 +1,6 @@
 aws_region            = "us-east-2"
 environment           = "dev"
-application_name      = "candidate-app"
+# application_name      = "candidate-app"
 dynamodb_table_name   = "Candidates"
 health_check_path     = "/gtg"
 health_check_timeout  = 5
