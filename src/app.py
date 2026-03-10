@@ -46,10 +46,10 @@ def gtg():
     except Exception as e:
         return {"status": str(e)}, 500
 
-    if details:
+    if details is not None:
         return {"connected": "true", "instance-id": instance_id}, 200
 
-    return Response(status=200)
+    return "OK", 200
 
 
 @candidates_app.route("/candidate/<name>", methods=["GET"])
@@ -119,7 +119,7 @@ def get_candidates():
                 candidate["Party"] = item["Party"]
             results.append(candidate)
 
-        return json.dumps(items), 200
+        return json.dumps(results), 200
 
     # pylint: disable=broad-except
     except Exception:

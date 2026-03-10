@@ -10,7 +10,7 @@ EC2_USER="${2:-ec2-user}"
 
 usage() {
   echo "Usage: $0 <ec2-host> [<ec2-user>]"
-  return ${1:-0}
+  return "${1:-0}"
 }
 
 if [ -z "$EC2_HOST" ]; then
