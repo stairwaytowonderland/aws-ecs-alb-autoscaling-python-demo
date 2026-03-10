@@ -85,7 +85,7 @@ resource "null_resource" "docker_build_push" {
       docker build --no-cache --platform linux/amd64 -t ${var.application_name} -f ${var.dockerfile_path} ${var.docker_build_context}
 
       # Tag image -- Handled by docker_image.app
-      docker tag candidate-app ${var.docker_image_url}
+      docker tag ${var.application_name} ${var.docker_image_url}
 
       # Push to ECR
       docker push ${var.docker_image_url}
