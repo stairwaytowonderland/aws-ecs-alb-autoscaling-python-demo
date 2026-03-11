@@ -75,7 +75,8 @@ RUN apt-get update && \
 	}
 
 # Copy installed dependencies from the builder stage
-COPY --from=builder /usr/lib/aarch64-linux-gnu/ /usr/lib/aarch64-linux-gnu
+COPY --from=builder /usr/lib/aarch64-linux-gnu/ /usr/lib/aarch64-linux-gnu/
+COPY --from=builder /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
 COPY --from=builder /usr/local/lib/ /usr/local/lib
 COPY --from=builder /usr/local/bin/ /usr/local/bin
 COPY --from=builder /src .
