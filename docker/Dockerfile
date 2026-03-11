@@ -14,8 +14,8 @@ WORKDIR /src
 
 # Install Python and pip
 RUN apt-get update \
-	&& apt-get install -y --no-install-recommends \
-		libssl3 \
+	&& apt-get install -y --no-install-recommends libssl3 \
+	&& mkdir /usr/lib/aarch64-linux-gnu /usr/lib/x86_64-linux-gnu \
 	&& { python${PYTHON_VERSION} -m ensurepip --upgrade || true; } \
 	&& python${PYTHON_VERSION} -m pip install --upgrade --no-cache-dir --ignore-installed --break-system-packages --root-user-action=ignore pip \
 	# The apt cleanup is redundant here since we don't inherit the builder stage, but it's good practice
@@ -75,8 +75,8 @@ RUN apt-get update && \
 	}
 
 # Copy installed dependencies from the builder stage
-COPY --from=builder /usr/lib/aarch64-linux-gnu/ /usr/lib/aarch64-linux-gnu/
-COPY --from=builder /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu/
+COPY --from=builder /usr/lib/aarch64-linux-gnu/ /usr/lib/aarch64-linux-gnu
+COPY --from=builder /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu
 COPY --from=builder /usr/local/lib/ /usr/local/lib
 COPY --from=builder /usr/local/bin/ /usr/local/bin
 COPY --from=builder /src .
