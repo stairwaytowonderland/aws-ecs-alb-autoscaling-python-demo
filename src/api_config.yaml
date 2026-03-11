@@ -1,6 +1,6 @@
 # API configuration settings
 server:
-  host: "0.0.0.0"
+  host: "localhost"
   port: 8000
 
 mimetypes:
@@ -10,7 +10,7 @@ mimetypes:
   docx: ["application/vnd.openxmlformats-officedocument.wordprocessingml.document"]
 
 cors:
-  enabled: false
+  enabled: true
   supports_credentials: false
   origins: "*"
   expose_headers:
