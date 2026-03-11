@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import tempfile
+import urllib
 import uuid
 from pathlib import Path
 from typing import Any
@@ -13,7 +14,28 @@ from flask.wrappers import Response
 from flask_restx import Api, Resource, fields
 from werkzeug.datastructures import FileStorage
 
-from src.resume_md_to_docx import *
+try:
+    import api_utils as api_utils
+    from resume_md_to_docx import (
+        ConfigLoader,
+        convert_to_pdf,
+        create_ats_resume,
+        DEFAULT_OUTPUT_DIR,
+        DEFAULT_OUTPUT_FORMAT,
+        DOCX_EXTENSION,
+        PDF_EXTENSION,
+    )
+except ImportError:
+    import src.api_utils as api_utils
+    from src.resume_md_to_docx import (
+        ConfigLoader,
+        convert_to_pdf,
+        create_ats_resume,
+        DEFAULT_OUTPUT_DIR,
+        DEFAULT_OUTPUT_FORMAT,
+        DOCX_EXTENSION,
+        PDF_EXTENSION,
+    )
 
 # To be able to run as `python src/api.py` (or `python3 api.py`):
 # if __name__ == "__main__":
@@ -652,7 +674,33 @@ class App(BaseApi):
 
 
 app = App(SCRIPT_DIR / API_CONFIG_FILE)
-resume_app = app.app
+
+
+@app.app.route("/", methods=["GET"])
+def default():
+    """
+    Default GET endpoint
+    """
+    return {"status": "invalid request"}, 400
+
+
+@app.app.route("/gtg", methods=["GET"])
+def gtg():
+    """
+    /gtg GET endpoint
+    """
+    try:
+        details = request.args.get("details", None)
+        if details is not None:
+            instance_id = api_utils.get_instance_id(api_utils.health_check_timeout)
+            return {"connected": "true", "instance-id": instance_id}, 200
+    except urllib.error.HTTPError as e:
+        return {"status": str(e.reason)}, e.code
+    # pylint: disable=broad-except
+    except Exception as e:
+        return {"status": str(e)}, 500
+
+    return "OK", 200
 
 
 @app.ns.route("/docx", methods=["POST"])
@@ -781,4 +829,4 @@ curl -X POST "http://localhost:3000/convert/pdf" \\
 
 # Export the Flask application object, not the App class instance
 # This is what serverless-wsgi needs - the actual Flask application
-application = app.app  # Get the Flask app from App class instance
+resume_app = app.app  # Get the Flask app from App class instance
