@@ -58,7 +58,7 @@ EXPOSE 8000
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-	CMD [ "curl", "-fsSL", "http://0.0.0.0:8000/gtg" ] || exit 1
+	CMD [ "curl", "-fsSL", "http://0.0.0.0:8000/gtg" ]
 
 # Run the application with gunicorn
 CMD ["gunicorn", "-b", "0.0.0.0:8000", "api:resume_app"]
