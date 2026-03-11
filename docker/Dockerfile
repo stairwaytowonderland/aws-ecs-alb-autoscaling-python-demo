@@ -3,12 +3,12 @@ FROM python:${PYTHON_VERSION}-slim AS builder
 
 ARG PYTHON_VERSION
 
-USER root
-
 ENV DEBIAN_FRONTEND=noninteractive \
 	PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
 	PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+USER root
 
 WORKDIR /src
 
@@ -22,11 +22,11 @@ RUN apt-get update \
 	&& apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy application code
-COPY src/ .
+# Copy application requirements
+COPY src/requirements/ .
 
 # Install application dependencies
-RUN python${PYTHON_VERSION} -m pip install --no-cache-dir --ignore-installed --break-system-packages --root-user-action=ignore -r requirements/requirements-api.txt
+RUN python${PYTHON_VERSION} -m pip install --no-cache-dir --ignore-installed --break-system-packages --root-user-action=ignore -r requirements-api.txt
 
 
 FROM ghcr.io/stairwaytowonderland/starter-project:builder-ubuntu-latest AS app
@@ -74,14 +74,25 @@ RUN apt-get update && \
 		}; \
 	}
 
-# Copy installed dependencies from the builder stage
+# Copy arch-specific dependencies from the builder stage
+# Since we can't dynamically determine arch in the COPY line,
+# we copy any directories that could apply, and delete the unused
+# in the RUN line.
 COPY --from=builder /usr/lib/aarch64-linux-gnu/ /usr/lib/aarch64-linux-gnu
 COPY --from=builder /usr/lib/x86_64-linux-gnu/ /usr/lib/x86_64-linux-gnu
+RUN for arch in aarch64 x86_64 ; do \
+		[ $(ls -1 "/usr/lib/${arch}-linux-gnu" | wc -l | xargs echo) -gt 0 ] \
+			|| rm -rf "/usr/lib/${arch}-linux-gnu"; \
+	done
+
+# Copy installed dependencies from the builder stage
 COPY --from=builder /usr/local/lib/ /usr/local/lib
 COPY --from=builder /usr/local/bin/ /usr/local/bin
-COPY --from=builder /src .
 
 USER $USERNAME
+
+# Copy application code
+COPY src/ .
 
 # Expose the application port
 # dockerfile-utils: ignore
