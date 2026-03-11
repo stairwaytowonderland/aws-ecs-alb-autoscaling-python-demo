@@ -6,15 +6,17 @@ ARG PYTHON_VERSION
 ENV DEBIAN_FRONTEND=noninteractive \
 	PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
+	# If pip install was using the --user option, we'd want to update the PATH
 	PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 USER root
 
 WORKDIR /src
 
-# Install Python and pip
+# Update distro; Install Python and pip
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends libssl3 \
+	&& apt-get -s dist-upgrade | grep "^Inst" | grep -i securi | cut -d " " -f 2 | xargs apt-get install -y --no-install-recommends \
 	&& mkdir -p /usr/lib/aarch64-linux-gnu /usr/lib/x86_64-linux-gnu || true \
 	&& { python${PYTHON_VERSION} -m ensurepip --upgrade || true; } \
 	&& python${PYTHON_VERSION} -m pip install --upgrade --no-cache-dir --ignore-installed --break-system-packages --root-user-action=ignore pip \
@@ -92,7 +94,7 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin
 USER $USERNAME
 
 # Copy application code
-COPY src/ .
+COPY --chown=$USERNAME:$USERNAME src/ .
 
 # Expose the application port
 # dockerfile-utils: ignore
