@@ -9,7 +9,8 @@ from pathlib import Path
 from typing import Any
 
 import yaml
-from flask import Flask, request, send_from_directory
+from flask import Flask, request, send_file, send_from_directory
+from io import BytesIO
 from flask.wrappers import Response
 from flask_restx import Api, Resource, fields
 from werkzeug.datastructures import FileStorage
@@ -494,35 +495,45 @@ class App(BaseApi):
             self._app.logger.info(f"Output file: {output_file}")
             if not output_file or not os.path.exists(output_file):
                 raise Exception(f"Failed to generate output file: {output_file}")
-
-            # Return the appropriate file directly from the temp directory
-            # Add explicit filename in Content-Disposition header for curl -O
+            
             download_name = os.path.basename(output_file)
             self._app.logger.info(f"Successfully created: {output_file}")
 
-            # Existing behavior - direct file download
-            response = send_from_directory(
-                directory=docx_output_path.parent,
-                path=output_file.name,
-                as_attachment=True,
-                download_name=download_name,
-                mimetype=mime_types[0],
-            )
+            # Read file into memory before temp dir is cleaned up
+            if True:
+                with open(output_file, "rb") as f:
+                    file_data = BytesIO(f.read())
 
-            # Force proper filename in Content-Disposition header
-            response.headers["Content-Disposition"] = (
-                f'attachment; filename="{download_name}"'
-            )
+                response = send_file(
+                    file_data,
+                    as_attachment=True,
+                    download_name=download_name,
+                    mimetype=mime_types[0],
+                )
+            else:
+                # Return the appropriate file directly from the temp directory
+                # Add explicit filename in Content-Disposition header for curl -O
 
-            # Add additional headers to help browsers handle the download properly
-            # response.headers["X-Content-Type-Options"] = "nosniff"
+                # Existing behavior - direct file download
+                response = send_from_directory(
+                    directory=docx_output_path.parent,
+                    path=output_file.name,
+                    as_attachment=True,
+                    download_name=download_name,
+                    mimetype=mime_types[0],
+                )
+
+                # Force proper filename in Content-Disposition header
+                response.headers["Content-Disposition"] = (
+                    f'attachment; filename="{download_name}"'
+                )
 
             return response
 
         except ValueError as e:
             return self.error_response(400, f"Value error: {str(e)}")
         except FileNotFoundError as e:
-            self.error_response(404, e, "File not found")
+            return self.error_response(404, e, "File not found")
         except Exception as e:
             return self.error_response(400, f"Error: {str(e)}")
 
@@ -708,6 +719,8 @@ class ConvertDocxResource(Resource):
     @app.ns.doc(
         "convert_markdown",
         consumes=["text/plain", "multipart/form-data"],
+        # produces=["application/octet-stream"],
+        # produces=app.api_config.mimetypes.get("docx"),
     )
     @app.ns.expect(app.arg_parser)
     @app.ns.response(
@@ -758,6 +771,8 @@ class ConvertPdfResource(Resource):
     @app.ns.doc(
         "convert_markdown",
         consumes=["text/plain", "multipart/form-data"],
+        # produces=["application/octet-stream"],
+        # produces=app.api_config.mimetypes.get("pdf"),
     )
     @app.ns.expect(app.arg_parser)
     @app.ns.response(
