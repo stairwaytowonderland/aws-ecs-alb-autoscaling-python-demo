@@ -12,8 +12,7 @@ RUN apt-get update && \
     apt-get install -y \
 		python3 \
         python3-pip \
-		tini \
-	# Cleanup is redundant since we don't inherit the builder stage, but it's good practice
+	# Cleanup is redundant here since we don't inherit the builder stage, but it's good practice
     && rm -rf /var/lib/apt/lists/* \
 	&& apt-get clean
 
@@ -27,6 +26,19 @@ RUN pip3 install --break-system-packages --ignore-installed --no-cache-dir --use
 FROM ghcr.io/stairwaytowonderland/starter-project:builder-ubuntu-latest AS app
 ARG PYTHON_VERSION
 
+RUN apt-get update && \
+    apt-get install -y \
+		libreoffice-common \
+        libreoffice-writer \
+		tini \
+    && rm -rf /var/lib/apt/lists/* \
+	&& apt-get clean
+
+# Copy installed dependencies from the builder stage
+COPY --from=builder /root/.local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/dist-packages
+COPY --from=builder /root/.local/bin/* /usr/local/bin/
+COPY --from=builder /src .
+
 ARG USERNAME=appuser
 ARG USER_UID=1000
 ARG USER_GID=1000
@@ -38,12 +50,6 @@ RUN groupadd --gid "$USER_GID" "$USERNAME" \
 
 WORKDIR /app
 USER $USERNAME
-
-# Copy installed dependencies from the builder stage
-COPY --from=builder /usr/bin/tini /usr/bin/tini
-COPY --from=builder /root/.local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/dist-packages
-COPY --from=builder /root/.local/bin/* /usr/local/bin/
-COPY --from=builder /src .
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \

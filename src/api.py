@@ -203,7 +203,7 @@ class BaseApi:
 
         self._host = self._api_config.server.get("host")
         self._port = self._api_config.server.get("port")
-        # self._app.config["SERVER_NAME"] = f"{self._host}:{self._port}"
+        self._app.config["SERVER_NAME"] = f"{self._host}:{self._port}"
 
         self._app.logger.debug(f"API host: {self._host}")
         self._app.logger.debug(f"API port: {self._port}")

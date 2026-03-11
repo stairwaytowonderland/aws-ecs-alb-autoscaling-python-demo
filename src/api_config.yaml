@@ -1,6 +1,6 @@
 # API configuration settings
 server:
-  host: "localhost"
+  host: localhost
   port: 8000
 
 mimetypes:
@@ -12,16 +12,16 @@ mimetypes:
 cors:
   enabled: true
   supports_credentials: false
-  # origins: "*"
-  origins:
-    - "http://dev-app-alb-1479481766.us-east-2.elb.amazonaws.com"
-    # - "http://localhost:8000"
-    # - "http://127.0.0.1:8000"
-    # - "http://0.0.0.0:8000"
+  origins: "*"
+  # origins:
+  #   - http://dev-app-alb-1479481766.us-east-2.elb.amazonaws.com
+  #   - http://localhost:8000
+  #   - http://127.0.0.1:8000
+  #   - http://0.0.0.0:8000
   expose_headers:
-    - "Content-Disposition"
-    - "Content-Type"
-    - "Content-Length"
+    - Content-Disposition
+    - Content-Type
+    - Content-Length
 
 input:
   prefer_file: true
@@ -30,4 +30,4 @@ output:
   use_temp_directory: true
 
 logging:
-  level: "INFO"
+  level: INFO
