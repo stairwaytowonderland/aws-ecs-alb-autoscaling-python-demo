@@ -1,30 +1,55 @@
 ARG PYTHON_VERSION=3.12
-FROM ghcr.io/stairwaytowonderland/starter-project:builder-ubuntu-latest AS builder
+FROM python:${PYTHON_VERSION}-slim AS builder
+
+ARG PYTHON_VERSION
 
 USER root
 
-ENV DEBIAN_FRONTEND=noninteractive
+ENV DEBIAN_FRONTEND=noninteractive \
+	PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+	PATH=/root/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 WORKDIR /src
 
-# Install system dependencies for security
-RUN apt-get update && \
-    apt-get install -y \
-		python3 \
-        python3-pip \
-	# Cleanup is redundant here since we don't inherit the builder stage, but it's good practice
-    && rm -rf /var/lib/apt/lists/* \
-	&& apt-get clean
+# Install Python and pip
+RUN apt-get update \
+	&& apt-get install -y --no-install-recommends \
+		libssl3 \
+	&& { python${PYTHON_VERSION} -m ensurepip --upgrade || true; } \
+	&& python${PYTHON_VERSION} -m pip install --upgrade --no-cache-dir --ignore-installed --break-system-packages --root-user-action=ignore pip \
+	# The apt cleanup is redundant here since we don't inherit the builder stage, but it's good practice
+	&& apt-get clean -y \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy application code
 COPY src/ .
 
 # Install application dependencies
-RUN pip3 install --break-system-packages --ignore-installed --no-cache-dir --user -r requirements/requirements-api.txt
+RUN python${PYTHON_VERSION} -m pip install --no-cache-dir --ignore-installed --break-system-packages --root-user-action=ignore -r requirements/requirements-api.txt
 
 
 FROM ghcr.io/stairwaytowonderland/starter-project:builder-ubuntu-latest AS app
-ARG PYTHON_VERSION
+
+ARG PYTHON_VERSION \
+	TIMEZONE=UTC \
+	USERNAME=appuser \
+	USER_UID=1000 \
+	USER_GID=1000 \
+	DEBUG=false \
+	BIND_ADDR=0.0.0.0:8000
+
+ENV PYTHON_VERSION=${PYTHON_VERSION} \
+	TZ=$TIMEZONE \
+	DEBIAN_FRONTEND=noninteractive \
+	# Prevent Python from writing .pyc files (keeps source code directories free of __pycache__ folders and .pyc files)
+	PYTHONDONTWRITEBYTECODE=1 \
+	# Ensure Python output is sent straight to the terminal without buffering (important for logging in Docker)
+    PYTHONUNBUFFERED=1 \
+	# Default to Candidates table if not specified at runtime
+	TC_DYNAMO_TABLE=Candidates
+
+USER root
 
 WORKDIR /app
 
@@ -32,40 +57,40 @@ RUN apt-get update && \
     apt-get install -y \
 		libreoffice-common \
         libreoffice-writer \
+	&& apt-get install -y --no-install-recommends \
+		libssl3 \
 		tini \
-    && rm -rf /var/lib/apt/lists/* \
-	&& apt-get clean
+	# Cleanup
+	&& apt-get clean -y \
+	&& apt-get -y autoremove \
+	&& rm -rf /var/lib/apt/lists/* \
+	# Create a non-root user to run the application, if it doesn't already exist
+	&& id "$USERNAME" >/dev/null 2>&1 || { \
+		groupadd --gid "$USER_GID" "$USERNAME" \
+		&& useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" -s /bin/bash \
+		&& [ "$DEBUG" != "true" ] || { \
+			echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME" \
+			&& chmod 0440 "/etc/sudoers.d/$USERNAME"; \
+		}; \
+	}
 
 # Copy installed dependencies from the builder stage
-COPY --from=builder /root/.local/lib/python${PYTHON_VERSION}/site-packages /usr/local/lib/python${PYTHON_VERSION}/dist-packages
-COPY --from=builder /root/.local/bin/* /usr/local/bin/
+COPY --from=builder /usr/lib/aarch64-linux-gnu/ /usr/lib/aarch64-linux-gnu
+COPY --from=builder /usr/local/lib/ /usr/local/lib
+COPY --from=builder /usr/local/bin/ /usr/local/bin
 COPY --from=builder /src .
-
-ARG USERNAME=appuser
-ARG USER_UID=1000
-ARG USER_GID=1000
-
-RUN groupadd --gid "$USER_GID" "$USERNAME" \
-  && useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" -s /bin/bash
-#   && echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME" \
-#   && chmod 0440 "/etc/sudoers.d/$USERNAME"
 
 USER $USERNAME
 
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1
-
-# Default to Candidates table if not specified at runtime
-ENV TC_DYNAMO_TABLE=Candidates
-
 # Expose the application port
-EXPOSE 8000
+# dockerfile-utils: ignore
+EXPOSE "${BIND_ADDR##*:}"
+
+# dockerfile-utils: ignore
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+	CMD curl -f http://localhost/"${BIND_ADDR##*:}"/gtg || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-	CMD [ "curl", "-fsSL", "http://0.0.0.0:8000/gtg" ]
-
 # Run the application with gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:8000", "api:resume_app"]
+CMD ["gunicorn", "-c", "gunicorn.conf.py", "api:resume_app"]

@@ -50,7 +50,7 @@ logging.basicConfig(
 )
 
 SCRIPT_DIR = Path(__file__).parent
-API_CONFIG_FILE = Path("api_config.yaml")
+API_CONFIG_FILE = Path(os.environ.get("API_CONFIG_FILE", "api_config.yaml"))
 
 
 class ApiConfig:
@@ -700,7 +700,7 @@ def gtg():
     except Exception as e:
         return {"status": str(e)}, 500
 
-    return "OK", 200
+    return Response(status=200)
 
 
 @app.ns.route("/docx", methods=["POST"])
