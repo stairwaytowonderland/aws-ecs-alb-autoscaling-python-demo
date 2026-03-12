@@ -5,21 +5,87 @@ target-version = ['py310', 'py311', 'py312']
 include = '\.pyi?$'
 
 [tool.ruff.lint]
+# Ruff rule families quick reference:
+#
+# Rule   | Plugin / Standard      | Description
+# -------+------------------------+-------------------------------------------------------
+# BLE    | flake8-blind-except    | Blind/bare exception catching
+# COM    | flake8-commas          | Trailing comma enforcement
+# D      | pydocstyle             | Docstring style and formatting
+# E      | pycodestyle            | PEP 8 style errors (formatting, spacing, etc.)
+# EM     | flake8-errmsg          | Exception message formatting
+# ERA    | flake8-eradicate       | Commented-out code detection
+# F      | pyflakes               | Undefined names, unused imports/variables, etc.
+# FIX    | flake8-fixme           | FIXME/TODO/HACK/XXX comment presence
+# G      | flake8-logging-format  | Logging call formatting (e.g. no f-strings in logging)
+# I      | isort                  | Import ordering and grouping
+# ISC    | flake8-implicit-str-concat | Implicit string concatenation
+# PLC    | pylint (convention)    | Pylint C-category convention rules
+# S      | flake8-bandit          | Security checks (subset of bandit)
+# T10    | flake8-debugger        | Debugger calls (breakpoint, pdb.set_trace)
+# T20    | flake8-print           | print() / pprint() calls
+# TD     | flake8-todos           | TODO comment formatting (author, issue link, etc.)
+# TRY    | tryceratops            | try/except anti-patterns
+# W      | pycodestyle            | PEP 8 style warnings (whitespace, line breaks, etc.)
+
+# Rules ignored to avoid conflicts with other tools (pre-commit hooks, VS Code formatters, etc.):
+#
+# Rule   | Conflicts with | Where it runs              | Reason
+# -------+----------------+----------------------------+----------------------------------------------
+# COM812 | black          | pre-commit, VS Code        | Black controls trailing commas
+# E      | black          | pre-commit, VS Code        | Black handles all formatting; pycodestyle errors overlap
+# F401   | autoflake      | pre-commit                 | autoflake removes unused imports
+# F811   | autoflake      | pre-commit                 | autoflake removes redefined unused names
+# F841   | autoflake      | pre-commit                 | autoflake removes unused local variables
+# I      | isort          | pre-commit                 | Direct overlap — import ordering
+# ISC    | black          | pre-commit, VS Code        | Black reformats implicit string concatenation
+# W      | black          | pre-commit, VS Code        | Black handles whitespace/formatting; pycodestyle warnings overlap
+
 select = ["ALL"]
 
 # Ignore specific rule codes
-ignore = [
-	"BLE001",
-	"D400",
-	"D415",
-	"D417",
-	"E402",
-	"E501",
-	"ERA001",
-	"G004",
-	"PLC0415",
-	"S310",
-	"T201",
-	"TRY002",
-	"TRY301",
+extend-ignore = [
+	# --- Formatting (deferred to black) ---
+	"COM812", # flake8-commas: missing trailing comma (black handles this)
+	"E",      # pycodestyle: all error rules (black handles this)
+	"ISC",    # flake8-implicit-str-concat: implicit string concatenation (black handles this)
+	"W",      # pycodestyle: all warning rules (black handles this)
+
+	# --- Imports (deferred to isort) ---
+	"I", # isort: import ordering rules
+
+	# --- Docstrings ---
+	"D", # pydocstyle: all docstring style rules
+
+	# --- Comments ---
+	"ERA", # flake8-eradicate: commented-out code
+	"FIX", # flake8-fixme: FIXME/TODO/HACK/XXX comment presence
+	"TD",  # flake8-todos: TODO comment formatting rules
+
+	# --- Logging ---
+	"G", # flake8-logging-format: logging format rules (e.g. don't use f-strings in logging)
+
+	# --- Exception handling ---
+	"BLE",    # flake8-blind-except: blind exception catching (e.g. bare `except Exception`)
+	"EM",     # flake8-errmsg: exception messages (e.g. don't use string literals directly in `raise`)
+	"TRY002", # tryceratops: raise-vanilla-class: create your own exception class
+	"TRY301", # tryceratops: raise-within-try: abstract `raise` to an inner function
+
+	# --- Output ---
+	"T20", # flake8-print: print/pprint statement rules (T10 debugger rules kept active)
+
+	# --- Pylint convention ---
+	"PLC", # pylint convention: pylint C-category rules (e.g., PLC0415 import-outside-toplevel)
+
+	# --- Security (selectively disabled) ---
+	# "S",    # bandit: all security-related rules
+	# "S310", # bandit: suspicious use of `urllib.open`
+]
+
+# Allow autofix for all enabled rules (when `--fix`) is provided.
+fixable = ["ALL"]
+unfixable = [
+	"F401", # pyflakes: unused import (autoflake handles this)
+	"F811", # pyflakes: redefined unused name from import (autoflake handles this)
+	"F841", # pyflakes: unused local variable (autoflake handles this)
 ]
