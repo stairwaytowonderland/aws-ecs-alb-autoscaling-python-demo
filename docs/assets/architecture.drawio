@@ -1,11 +1,11 @@
 <mxfile host="65bd71144e">
     <diagram id="R93wuUJCukHf24gyeRGc" name="Page-1">
-        <mxGraphModel dx="731" dy="454" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="1150" math="0" shadow="0">
+        <mxGraphModel dx="575" dy="933" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="1150" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="user" value="&lt;b&gt;Internet User&lt;/b&gt;" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#232F3E;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=1;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.aws4.user;" parent="1" vertex="1">
-                    <mxGeometry x="40" y="480" width="60" height="60" as="geometry"/>
+                    <mxGeometry x="40" y="420" width="60" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="github" value="&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;(CI/CD)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#232F3E;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=1;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.aws4.traditional_server;" parent="1" vertex="1">
                     <mxGeometry x="40" y="130" width="60" height="60" as="geometry"/>
@@ -31,7 +31,7 @@
                 <mxCell id="ecr" value="&lt;b&gt;ECR Repository&lt;/b&gt;&lt;br&gt;(Flask App Image)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#C7131F;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;" parent="1" vertex="1">
                     <mxGeometry x="215" y="295" width="78" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="lbl_state" value="&lt;b&gt;Terraform State Backend&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#555555;" parent="1" vertex="1">
+                <mxCell id="lbl_state" value="&lt;b&gt;Terraform State / Backend&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#555555;" parent="1" vertex="1">
                     <mxGeometry x="210" y="460" width="410" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="ddb_tfstate" value="&lt;b&gt;DynamoDB&lt;/b&gt;&lt;br&gt;(TF State Lock)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#C7131F;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" parent="1" vertex="1">
@@ -94,17 +94,24 @@
                 <mxCell id="ddb_app" value="&lt;b&gt;DynamoDB&lt;/b&gt;&lt;br&gt;Candidates Table&lt;br&gt;(PAY_PER_REQUEST)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#C7131F;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" parent="1" vertex="1">
                     <mxGeometry x="1180" y="890" width="78" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="e_user_igw" value="HTTP :80" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="user" target="igw" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
-                </mxCell>
                 <mxCell id="e_igw_alb" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=block;endFill=1;" parent="1" source="igw" target="alb" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="e_alb_ec2a" value="forward :8000" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="alb" target="ec2_a" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1180" y="470"/>
+                            <mxPoint x="849" y="470"/>
+                        </Array>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="e_alb_ec2b" value="forward :8000" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="alb" target="ec2_b" edge="1">
-                    <mxGeometry relative="1" as="geometry"/>
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="1258" y="470"/>
+                            <mxPoint x="1543" y="470"/>
+                        </Array>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="e_ec2a_docker" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.96;entryY=-0.023;entryDx=0;entryDy=0;fontSize=10;endArrow=block;endFill=1;entryPerimeter=0;" parent="1" source="ec2_a" target="docker_a" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -150,13 +157,23 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="4" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;OIDC Auth&lt;/span&gt;" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" edge="1" parent="1" source="github">
+                <mxCell id="4" value="&lt;span style=&quot;color: rgb(0, 0, 0);&quot;&gt;OIDC Auth&lt;/span&gt;" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="github" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <mxPoint x="153" y="148.82" as="sourcePoint"/>
                         <mxPoint x="215" y="148.82" as="targetPoint"/>
                         <Array as="points">
                             <mxPoint x="151" y="149"/>
                         </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_user_igw" value="HTTP :80" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="user" target="igw" edge="1">
+                    <mxGeometry x="-0.2878" relative="1" as="geometry">
+                        <mxPoint x="97" y="450" as="sourcePoint"/>
+                        <Array as="points">
+                            <mxPoint x="639" y="450"/>
+                            <mxPoint x="639" y="149"/>
+                        </Array>
+                        <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="s3_tfstate" value="&lt;b&gt;S3 Bucket&lt;/b&gt;&lt;br&gt;(TF State)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#7AA116;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" parent="1" vertex="1">

@@ -928,6 +928,49 @@ for _path in ("/convert/docx", "/convert/pdf"):
 #    Fix: set the config key and push an app context before calling it.
 import flask_restful_swagger_3 as _frs3
 
+_INTRO_DOC = f"""
+## An API for converting *markdown resumes* to ATS-friendly formats
+
+### Overview
+
+This API provides endpoints to convert ***markdown resumes*** to ATS-friendly formats (DOCX and PDF).
+
+- **Markdown resumes** must follow a specific structure to ensure accurate parsing and conversion.
+- The API accepts markdown input either as a file upload or directly in the request body, along with optional configuration overrides for customizing the output.
+
+### API Examples
+
+#### Basic Conversion to DOCX
+
+```bash
+curl -X POST "http://{app.host}:{app.port}/convert/docx" \\
+  -F "input_file=@resume.md" \\
+  -o resume_converted.docx
+```
+
+#### Convert to PDF with *custom configuration*
+
+```bash
+curl -X POST "http://{app.host}:{app.port}/convert/pdf" \\
+  -F "input_file=@resume.md" \\
+  -F "config_options={{\\"style_constants\\": {{\\"paragraph_lists\\": true}}, {{\\"Title\\": {{\\"font_name\\": \\"Times New Roman\\"}}}}}}" \\
+  -o resume_converted.pdf
+```
+
+#### Convert to PDF with *custom configuration*, using *raw markdown* in request body
+
+```bash
+curl -X POST "http://{app.host}:{app.port}/convert/pdf" \\
+  -H "Accept: application/octet-stream" \\
+  -F "config_options={{\\"paragraph_lists\\": false}}" \\
+  -d "$(cat <<'EOT' \n...resume markdown contents...\nEOT\n)" -o resume_converted.docx
+```
+
+<br />
+
+### For live examples, see the following [API Demo](http://{app.host}:{app.port}/swagger#/Convert/post_convert_pdf) (below ⬇️)
+"""
+
 app.app.config["SWAGGER_BLUEPRINT_URL_PREFIX"] = "/swagger"
 _original_validate = _frs3.validate_open_api_object
 _frs3.validate_open_api_object = lambda x: None  # noqa: ARG005
@@ -937,22 +980,21 @@ with app.app.app_context():
         swagger_prefix_url="/api/doc",
         swagger_url="/swagger.json",
         title="Resume Markdown to DOCX API",
+        version="1.0",
+        description=_INTRO_DOC,
     )
 validate_open_api_object = _original_validate
 app.app.register_blueprint(swagger_bp, url_prefix="/swagger")
 
-
-if __name__ == "__main__":
-
-    # Program description and epilog
-    _PROGRAM_DESCRIPTION = """
+# Program description and epilog
+_PROGRAM_DESCRIPTION = """
 Resume Markdown to DOCX API
 --------------------------------
 This API converts markdown resumes to ATS-friendly formats (DOCX and PDF).
 It provides endpoints for converting markdown files to DOCX and PDF formats.
 """
 
-    _EPILOG_TEXT = """
+_EPILOG_TEXT = """
 Example usage:
 # Start the API server
 python api.py --config api_config.yaml --debug
@@ -961,9 +1003,10 @@ python api.py --config api_config.yaml --debug
 curl -X POST "http://localhost:3000/convert/pdf" \\
 -H "Content-Type: multipart/form-data" \\
 -F "input_file=@resume.md" \\
--F "config_options={\"document_styles\": {\"Subtitle\": {\"font_name\": \"Helvetica Neue\"}}}"
+-F "config_options={\"document_styles\": {\"Title\": {\"font_name\": \"Times New Roman\"}}}"
 """
 
+if __name__ == "__main__":
     app.run(_PROGRAM_DESCRIPTION, _EPILOG_TEXT)
 
 # Export the Flask application object, not the App class instance
