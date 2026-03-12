@@ -1,4 +1,8 @@
 # Sample pyproject.toml
+[tool.isort]
+profile = "black"
+skip_glob = [".venv*", "venv*", "*.egg-info"]
+
 [tool.black]
 line-length = 88
 target-version = ['py310', 'py311', 'py312']
@@ -9,6 +13,7 @@ include = '\.pyi?$'
 #
 # Rule   | Plugin / Standard      | Description
 # -------+------------------------+-------------------------------------------------------
+# ANN    | flake8-annotations     | Type annotation presence and style
 # BLE    | flake8-blind-except    | Blind/bare exception catching
 # COM    | flake8-commas          | Trailing comma enforcement
 # D      | pydocstyle             | Docstring style and formatting
@@ -30,16 +35,16 @@ include = '\.pyi?$'
 
 # Rules ignored to avoid conflicts with other tools (pre-commit hooks, VS Code formatters, etc.):
 #
-# Rule   | Conflicts with | Where it runs              | Reason
+# Rule   | Conflicts with | Where it runs        | Reason
 # -------+----------------+----------------------------+----------------------------------------------
-# COM812 | black          | pre-commit, VS Code        | Black controls trailing commas
-# E      | black          | pre-commit, VS Code        | Black handles all formatting; pycodestyle errors overlap
-# F401   | autoflake      | pre-commit                 | autoflake removes unused imports
-# F811   | autoflake      | pre-commit                 | autoflake removes redefined unused names
-# F841   | autoflake      | pre-commit                 | autoflake removes unused local variables
-# I      | isort          | pre-commit                 | Direct overlap — import ordering
-# ISC    | black          | pre-commit, VS Code        | Black reformats implicit string concatenation
-# W      | black          | pre-commit, VS Code        | Black handles whitespace/formatting; pycodestyle warnings overlap
+# COM812 | black          | pre-commit, VS Code  | Black controls trailing commas
+# E      | black          | pre-commit, VS Code  | Black handles all formatting; pycodestyle errors overlap
+# F401   | autoflake      | pre-commit, VS Code  | autoflake removes unused imports
+# F811   | autoflake      | pre-commit, VS Code  | autoflake removes redefined unused names
+# F841   | autoflake      | pre-commit, VS Code  | autoflake removes unused local variables
+# I      | isort          | pre-commit, VS Code  | Direct overlap — import ordering
+# ISC    | black          | pre-commit, VS Code  | Black reformats implicit string concatenation
+# W      | black          | pre-commit, VS Code  | Black handles whitespace/formatting; pycodestyle warnings overlap
 
 select = ["ALL"]
 
@@ -53,6 +58,9 @@ extend-ignore = [
 
 	# --- Imports (deferred to isort) ---
 	"I", # isort: import ordering rules
+
+	# --- Type annotations ---
+	"ANN204", # flake8-annotations: missing return type annotation for special methods (e.g. __init__)
 
 	# --- Docstrings ---
 	"D", # pydocstyle: all docstring style rules

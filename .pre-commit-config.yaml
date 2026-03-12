@@ -1,28 +1,47 @@
 default_install_hook_types:
   - pre-commit
   - commit-msg
+default_stages: [pre-commit]
 
 repos:
   - repo: https://github.com/antonbabenko/pre-commit-terraform
-    rev: v1.99.5
+    rev: v1.105.0
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
       # - id: terraform_wrapper_module_for_each
       # - id: terraform_docs
-        # args:
-        #   - '--args=--lockfile=false --config=.terraform-docs.yml'
+      # args:
+      #   - '--args=--lockfile=false --config=.terraform-docs.yml'
   - repo: https://github.com/terraform-docs/terraform-docs
-    rev: "v0.20.0"
+    rev: "v0.21.0"
     hooks:
       - id: terraform-docs-go
-        args: ["markdown", "table", "--config", ".terraform-docs.yml", "--recursive", "--recursive-path=aws", "./infra"]
+        args:
+          [
+            "markdown",
+            "table",
+            "--config",
+            ".terraform-docs.yml",
+            "--recursive",
+            "--recursive-path=aws",
+            "./infra",
+          ]
         # files: "^(?!.*\\.md$)" # Exclude markdown files from being processed by terraform-docs if they are the output
       - id: terraform-docs-go
-        args: ["markdown", "table", "--config", ".terraform-docs.yml", "--recursive", "--recursive-path=modules", "./infra"]
+        args:
+          [
+            "markdown",
+            "table",
+            "--config",
+            ".terraform-docs.yml",
+            "--recursive",
+            "--recursive-path=modules",
+            "./infra",
+          ]
         # files: "^(?!.*\\.md$)" # Exclude markdown files from being processed by terraform-docs if they are the output
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+    rev: v6.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -38,25 +57,39 @@ repos:
       #   args: [--branch, main]
 
   - repo: https://github.com/compilerla/conventional-pre-commit
-    rev: v4.0.0
+    rev: v4.3.0
     hooks:
       - id: conventional-pre-commit
+        stages: [commit-msg]
 
-  - repo: https://github.com/psf/black
-    rev: 25.1.0
+  # Shell script hooks
+  - repo: https://github.com/shellcheck-py/shellcheck-py
+    rev: v0.11.0.1
+    hooks:
+      - id: shellcheck
+        args: ["-x"]
+
+  - repo: https://github.com/psf/black-pre-commit-mirror
+    rev: 25.12.0
     hooks:
       - id: black
         name: black
-        args: [src,--line-length=88]
+        args: [src, --config=src/pyproject.toml]
+        # Filter out files that are not Python files (e.g. yaml, json, markdown, etc.)
+        # types: [python]
 
-  # - repo: local
-  #   hooks:
-  #     - id: isort
-  #       name: isort
-  #       entry: isort .
-  #       language: python
+  - repo: local
+    hooks:
+      - id: isort
+        name: isort
+        entry: isort --profile black src
+        language: system
+        # Filter out files that are not Python files (e.g. yaml, json, markdown, etc.)
+        # types: [python]
 
-  #     - id: autoflake
-  #       name: autoflake
-  #       entry: autoflake --in-place --remove-all-unused-imports --remove-unused-variables .
-  #       language: python
+      - id: autoflake
+        name: autoflake
+        entry: autoflake --in-place --remove-all-unused-imports --remove-unused-variables --recursive src
+        language: system
+        # Filter out files that are not Python files (e.g. yaml, json, markdown, etc.)
+        # types: [python]

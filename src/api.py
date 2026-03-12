@@ -69,7 +69,7 @@ API_CONFIG_FILE = Path(os.environ.get("API_CONFIG_FILE", "api_config.yaml"))
 class ApiConfig:
     """Application configuration class"""
 
-    def __init__(self, api_config_file: Path) -> None:
+    def __init__(self, api_config_file: Path):
         """Initialize the application configuration
 
         Args:
@@ -1010,5 +1010,7 @@ if __name__ == "__main__":
     app.run(_PROGRAM_DESCRIPTION, _EPILOG_TEXT)
 
 # Export the Flask application object, not the App class instance
+# This is what the wsgi server needs - the actual Flask application
+resume_app = app.app  # Get the Flask app from App class instance
 # This is what the wsgi server needs - the actual Flask application
 resume_app = app.app  # Get the Flask app from App class instance
