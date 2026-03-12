@@ -1,0 +1,353 @@
+{
+	"name": "Resume Converter Dev Container",
+	"build": {
+		"dockerfile": "../docker/Dockerfile",
+		"target": "devcontainer", // e.g., "base", "devtools", "cloudtools"
+		"context": "..",
+		"args": {
+			"USERNAME": "vscode",
+			"PYTHON_VERSION": "3.12"
+		}
+	},
+	// Comment out to connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root
+	"remoteUser": "vscode",
+
+	// Mount the workspace folder
+	// https://code.visualstudio.com/remote/advancedcontainers/change-default-source-mount
+	// If remoteUser is commented out to use root, use /root instead of /home/vscode
+	"workspaceFolder": "/home/vscode/workspace",
+	"workspaceMount": "source=${localWorkspaceFolder},target=${containerWorkspaceFolder},type=bind,consistency=cached",
+	// Mount SSH keys
+	"mounts": [
+		"source=${localEnv:HOME}/.ssh,target=/home/vscode/.ssh,type=bind,consistency=cached",
+		"source=${localEnv:HOME}/.gitconfig,target=/etc/gitconfig,type=bind,consistency=cached"
+	],
+
+	// Features to install
+	// https://containers.dev/features
+	"features": {
+		"ghcr.io/devcontainers/features/terraform:1": {
+			"version": "1.4.5"
+		},
+		"ghcr.io/devcontainers/features/aws-cli:1": {},
+		"ghcr.io/devcontainers/features/git:1": {}
+	},
+
+	// Use 'postCreateCommand' to run commands after the container is created (overrides the CMD in Dockerfile)
+	"postCreateCommand": "post-start",
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally
+	"forwardPorts": [8000],
+
+	// Set container-specific environment variables
+	"remoteEnv": {
+		"TZ": "America/Chicago",
+		"IGNOREEOF": "2",
+		"TERM": "xterm-256color"
+	},
+
+	// Configure tool-specific properties
+	"customizations": {
+		"vscode": {
+			// VSCode extensions from Brewfile
+			"extensions": [
+				// ---------------------------------------
+				// Cloud, Docker, and IoC extensions are commented out for faster builds; enable as needed
+				// ---------------------------------------
+				// "AmazonWebServices.aws-toolkit-vscode",
+				// "aws-scripting-guy.cform",
+				// "formulahendry.docker-explorer",
+				// "kddejong.vscode-cfn-lint",
+				// "ms-azuretools.vscode-docker",
+				// "hashicorp.terraform", // Formatting for Terraform files
+				// ---------------------------------------
+				// Markdown extensions are commented out for faster builds; enable as needed
+				// ---------------------------------------
+				"bierner.github-markdown-preview",
+				// "bierner.markdown-checkbox",
+				"bierner.markdown-emoji",
+				// "bierner.markdown-footnotes",
+				// "bierner.markdown-mermaid",
+				"bierner.markdown-preview-github-styles",
+				// "bierner.markdown-yaml-preamble",
+				// "bpruitt-goddard.mermaid-markdown-syntax-highlighting",
+				// "streetsidesoftware.code-spell-checker",
+				// "tomasdahlqvist.markdown-admonitions",
+				"yahyabatulu.vscode-markdown-alert",
+				// ---------------------------------------
+				// Non-essential extensions are commented out for faster builds; enable as needed
+				// ---------------------------------------
+				// "GitLab.gitlab-workflow",
+				"github.vscode-github-actions",
+				// "mechatroner.rainbow-csv",
+				// "ms-vscode.remote-explorer",
+				// "samuelcolvin.jinjahtml",
+				// "ms-python.black-formatter",
+				// "ms-python.isort",
+				// "ms-python.pylint",
+				// "rodolphebarbanneau.python-docstring-highlighter",
+				// "dbaeumer.vscode-eslint",
+				// ---------------------------------------
+				"charliermarsh.ruff",
+				"cloudbyte.better-byte",
+				"donjayamanne.githistory",
+				"eamodio.gitlens",
+				"editorconfig.editorconfig",
+				"esbenp.prettier-vscode",
+				"mhutchie.git-graph",
+				"mikoz.autoflake-extension",
+				"mkhl.shfmt", // Requires shfmt installation
+				"ms-azuretools.vscode-containers", // Formatting for Dockerfiles
+				"ms-azuretools.vscode-docker",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-python.vscode-python-envs",
+				"ms-vscode-remote.remote-containers",
+				"ms-vscode-remote.remote-ssh",
+				"ms-vscode-remote.remote-ssh-edit",
+				"redhat.vscode-yaml",
+				"tamasfe.even-better-toml",
+				"timonwong.shellcheck",
+				"yzhang.markdown-all-in-one"
+			],
+
+			// Set *default* container specific settings.json values on container create
+			"settings": {
+				/*
+					Terminal settings
+				*/
+				"terminal.integrated.defaultProfile.linux": "bash",
+				"terminal.integrated.profiles.linux": {
+					"bash": {
+						"path": "/usr/bin/bash",
+						"icon": "terminal",
+						"color": "terminal.ansiGreen"
+					},
+					"sh": {
+						"path": "/usr/bin/sh",
+						"icon": "terminal-linux",
+						"color": "terminal.ansiYellow",
+						"overrideName": true
+					}
+				},
+				"python.defaultInterpreterPath": "/usr/bin/python3",
+				/*
+					Editor settings
+				*/
+				"editor.formatOnType": true,
+				"editor.formatOnSave": true,
+				"editor.formatOnPaste": false,
+				"editor.defaultFormatter": "esbenp.prettier-vscode",
+				"editor.detectIndentation": false,
+				"editor.tabSize": 4,
+				"editor.codeActionsOnSave": {
+					"source.fixAll": "explicit"
+				},
+				/*
+					Prettier settings
+				*/
+				"prettier.useEditorConfig": true,
+				"prettier.configPath": ".prettierrc",
+				/*
+					Files settings
+				*/
+				"files.eol": "\n",
+				"files.encoding": "utf8",
+				"files.trimTrailingWhitespace": true,
+				"files.insertFinalNewline": true,
+				"files.associations": {
+					"*.Brewfile": "ruby",
+					"*.cron": "shellscript",
+					"*.lib": "shellscript",
+					"*yaml.tftpl": "jinja-yaml",
+					"*json.tftpl": "jinja-json"
+				},
+				/*
+					Shellscript settings
+				*/
+				"shellcheck.customArgs": ["-x"],
+				/*
+					Shellscript settings
+				*/
+				// "[shellscript]": {
+				// 	"editor.defaultFormatter": "mkhl.shfmt",
+				// 	"editor.formatOnSave": true
+				// },
+				/*
+					YAML settings
+				*/
+				"[yaml]": {
+					"editor.defaultFormatter": "redhat.vscode-yaml",
+					"editor.formatOnSave": true
+				},
+				/*
+					Markdown settings
+				*/
+				"[markdown]": {
+					"editor.defaultFormatter": "yzhang.markdown-all-in-one",
+					"editor.formatOnSave": true,
+					"editor.formatOnPaste": true,
+					"editor.codeActionsOnSave": {
+						"source.fixAll.markdownlint": "explicit"
+					}
+				},
+				// https://github.com/yzhang-gh/vscode-markdown?tab=readme-ov-file#supported-settings
+				"markdown.extension.orderedList.marker": "one",
+				"markdown.extension.toc.unorderedList.marker": "-",
+				/*
+					Dockerfile settings
+				*/
+				"[dockerfile]": {
+					"editor.defaultFormatter": "ms-azuretools.vscode-containers",
+					"editor.formatOnSave": false
+				},
+				/*
+					Configuration Language settings
+				*/
+				"[toml]": {
+					"editor.defaultFormatter": "tamasfe.even-better-toml",
+					"editor.formatOnSave": true
+				},
+				/*
+					Terraform settings
+				*/
+				"terraform.experimentalFeatures.validateOnSave": true,
+				"[terraform]": {
+					"editor.defaultFormatter": "hashicorp.terraform",
+					"editor.formatOnSave": true,
+					"editor.tabSize": 2
+				},
+				"[terraform-vars]": {
+					"editor.defaultFormatter": "hashicorp.terraform",
+					"editor.formatOnSave": true,
+					"editor.tabSize": 2
+				},
+				/*
+					Python settings
+					# If formatting isn't working after changing black-formatter.args ...
+					# In the Command Pallete search for 'Black Formatter: Restart Server'
+
+					# Sample pyproject.toml
+					[tool.black]
+					line-length = 88
+					target-version = ['py310', 'py311', 'py312']
+					include = '\.pyi?$'
+				*/
+				"black-formatter.args": ["--config", "${workspaceFolder}/pyproject.toml"],
+				"isort.args": ["--profile", "black"],
+				"[python]": {
+					"editor.defaultFormatter": "ms-python.black-formatter",
+					"editor.formatOnSave": true,
+					"editor.codeActionsOnSave": {
+						"source.organizeImports": "explicit"
+					}
+				},
+				"ruff.nativeServer": "on",
+				/*
+					Better Byte settings
+					https://marketplace.visualstudio.com/items?itemName=cloudbyte.better-byte
+				*/
+				"better-byte.multilineComments": true,
+				"better-byte.highlightPlainText": false,
+				"better-byte.tags": [
+					{
+						"tag": "!",
+						"color": "#FF2D00",
+						"strikethrough": false,
+						"underline": false,
+						"backgroundColor": "transparent",
+						"bold": false,
+						"italic": false
+					},
+					{
+						"tag": "?",
+						"color": "#3498DB"
+					},
+					{
+						"tag": "//",
+						"color": "#474747",
+						"strikethrough": true
+					},
+					{
+						"tag": "TODO",
+						"color": "#000000",
+						"backgroundColor": "#FF8C00"
+					},
+					{
+						"tag": "*",
+						"color": "#28FF00"
+					},
+					{
+						"tag": "FIXME",
+						"color": "#000000",
+						"backgroundColor": "#FFCC00"
+					},
+					{
+						"tag": "HACK",
+						"color": "#000000",
+						"backgroundColor": "#FF8C00"
+					},
+					{
+						"tag": "BUG",
+						"color": "#000000",
+						"backgroundColor": "#FF2D00"
+					},
+					{
+						"tag": "UNDO",
+						"color": "#000000",
+						"backgroundColor": "#3498DB"
+					}
+				],
+				/*
+					Custom YAML tags
+				*/
+				"yaml.customTags": [
+					"!reference sequence",
+					// CloudFormation custom tags
+					// https://github.com/redhat-developer/vscode-yaml/issues/669
+					"!And sequence",
+					"!And",
+					"!Base64 scalar",
+					"!Base64",
+					"!Cidr sequence",
+					"!Cidr",
+					"!Condition",
+					"!Condition scalar",
+					"!Equals sequence",
+					"!Equals",
+					"!FindInMap sequence",
+					"!FindInMap",
+					"!GetAtt",
+					"!GetAtt scalar",
+					"!GetAZs",
+					"!GetAZs scalar",
+					"!If sequence",
+					"!If",
+					"!ImportValue",
+					"!ImportValue scalar",
+					"!Join sequence",
+					"!Join",
+					"!Not sequence",
+					"!Not",
+					"!Or sequence",
+					"!Or",
+					"!Ref",
+					"!Ref scalar",
+					"!Select sequence",
+					"!Select",
+					"!Split sequence",
+					"!Split",
+					"!Sub sequence",
+					"!Sub",
+					"!Transform sequence",
+					"!Transform",
+					"!ValueOf",
+					"!ValueOf scalar",
+					"!ImportNoChecks",
+					"!ImportNoChecks scalar"
+					// Add any other CloudFormation intrinsic functions you use
+				]
+			}
+		}
+	}
+}

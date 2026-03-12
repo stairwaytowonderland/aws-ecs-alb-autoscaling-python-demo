@@ -81,8 +81,8 @@ resource "null_resource" "docker_build_push" {
       aws ecr get-login-password --region ${data.aws_region.current.region} | docker login --username ${var.auth_config_username} --password-stdin ${local.docker_image_hostname}
 
       # Build the image -- Handled by docker_image.app
-      # docker build --no-cache --platform linux/amd64,linux/arm64 -t ${var.application_name} -f ${var.dockerfile_path} ${var.docker_build_context}
-      docker build --no-cache --platform linux/amd64 -t ${var.application_name} -f ${var.dockerfile_path} ${var.docker_build_context}
+      # docker build --target app --no-cache --platform linux/amd64,linux/arm64 -t ${var.application_name} -f ${var.dockerfile_path} ${var.docker_build_context}
+      docker build --target app --no-cache --platform linux/amd64 -t ${var.application_name} -f ${var.dockerfile_path} ${var.docker_build_context}
 
       # Tag image -- Handled by docker_image.app
       docker tag ${var.application_name} ${var.docker_image_url}
