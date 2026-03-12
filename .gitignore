@@ -10,7 +10,8 @@
 *.tar.gz
 
 # IDE
-.vscode/
+.vscode/*
+!.vscode
 !.vscode/settings.json
 
 # APP

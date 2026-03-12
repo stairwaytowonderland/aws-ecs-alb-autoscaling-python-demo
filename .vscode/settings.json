@@ -1,0 +1,270 @@
+{
+	"chat.mcp.serverSampling": {
+		"aws-ecs-alb-autoscaling-python-demo/.vscode/mcp.json: drawio": {
+			"allowedModels": ["copilot/gpt-5.3-codex", "copilot/claude-sonnet-4.6", "copilot/gpt-4.1"]
+		}
+	},
+
+	/*
+		Editor settings
+	*/
+	"editor.formatOnSave": true,
+	"editor.formatOnType": false,
+	"editor.formatOnPaste": false,
+	// "editor.formatOnSaveMode": "modifications",
+	// https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode
+	"editor.defaultFormatter": "esbenp.prettier-vscode",
+	"editor.detectIndentation": false,
+	"editor.tabSize": 4,
+	"editor.renderWhitespace": "boundary",
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "explicit"
+	},
+
+	/*
+		Prettier settings
+	*/
+	"prettier.useEditorConfig": true,
+	"prettier.configPath": ".prettierrc",
+
+	/*
+		Files settings
+	*/
+	"files.eol": "\n",
+	"files.encoding": "utf8",
+	"files.trimTrailingWhitespace": true,
+	"files.insertFinalNewline": true,
+	"files.associations": {
+		"*.Brewfile": "ruby",
+		"*.cron": "shellscript",
+		"*.lib": "shellscript",
+		"*yaml.tftpl": "jinja-yaml",
+		"*json.tftpl": "jinja-json",
+		"LICENSE": "plaintext"
+	},
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/*.tfstate": true,
+		"**/*.tfstate.*": true,
+		"**/.terraform": true,
+		".terraform.lock.hcl": true
+	},
+
+	/*
+		Terminal settings
+	*/
+	"terminal.integrated.defaultProfile.osx": "bash",
+	"terminal.integrated.profiles.osx": {
+		"bash": {
+			"path": "${env:SHELL}",
+			"icon": "terminal",
+			"color": "terminal.ansiGreen"
+		},
+		"sh": {
+			"path": "/bin/sh",
+			"icon": "terminal-linux",
+			"color": "terminal.ansiYellow",
+			"overrideName": true
+		}
+	},
+
+	/*
+		Shellcheck settings
+	*/
+	"shellcheck.customArgs": ["-x"],
+
+	/*
+		Git settings
+	*/
+	"git.autofetch": true,
+	"git.enableSmartCommit": true,
+	"git.confirmSync": false,
+
+	/*
+		Dockerfile settings
+	*/
+	"[dockerfile]": {
+		"editor.defaultFormatter": "ms-azuretools.vscode-containers",
+		"editor.formatOnSave": false
+	},
+
+	/*
+		Shellscript settings
+	*/
+	"[shellscript]": {
+		"editor.defaultFormatter": "mkhl.shfmt",
+		"editor.formatOnSave": true
+	},
+
+	/*
+		YAML settings
+	*/
+	"[yaml]": {
+		"editor.defaultFormatter": "redhat.vscode-yaml",
+		"editor.formatOnSave": true
+	},
+
+	/*
+		Markdown settings
+	*/
+	"[markdown]": {
+		"editor.defaultFormatter": "yzhang.markdown-all-in-one",
+		"editor.formatOnSave": true,
+		"editor.formatOnPaste": true,
+		"editor.codeActionsOnSave": {
+			"source.fixAll.markdownlint": "explicit"
+		}
+	},
+	// https://github.com/yzhang-gh/vscode-markdown?tab=readme-ov-file#supported-settings
+	"markdown.extension.orderedList.marker": "one",
+	"markdown.extension.toc.unorderedList.marker": "-",
+
+	/*
+		Terraform settings
+	*/
+	"terraform.experimentalFeatures.validateOnSave": true,
+	"[terraform]": {
+		"editor.defaultFormatter": "hashicorp.terraform",
+		"editor.formatOnSave": true,
+		"editor.tabSize": 2
+	},
+	"[terraform-vars]": {
+		"editor.defaultFormatter": "hashicorp.terraform",
+		"editor.formatOnSave": true,
+		"editor.tabSize": 2
+	},
+
+	/*
+		Configuration Language settings
+	*/
+	"[toml]": {
+		"editor.defaultFormatter": "tamasfe.even-better-toml",
+		"editor.formatOnSave": true
+	},
+
+	/*
+		Python settings
+		# If formatting isn't working after changing black-formatter.args ...
+		# In the Command Pallete search for 'Black Formatter: Restart Server'
+
+		# Sample pyproject.toml
+		[tool.black]
+		line-length = 88
+		target-version = ['py310', 'py311', 'py312']
+		include = '\.pyi?$'
+	*/
+	"black-formatter.args": ["--config", "${workspaceFolder}/src/pyproject.toml"],
+	"isort.args": ["--profile", "black"],
+	"[python]": {
+		"editor.defaultFormatter": "ms-python.black-formatter",
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": "explicit"
+		}
+	},
+	"ruff.nativeServer": "on",
+
+	/*
+		Better Byte settings
+		https://marketplace.visualstudio.com/items?itemName=cloudbyte.better-byte
+	*/
+	"better-byte.multilineComments": true,
+	"better-byte.highlightPlainText": false,
+	"better-byte.tags": [
+		{
+			"tag": "!",
+			"color": "#FF2D00",
+			"strikethrough": false,
+			"underline": false,
+			"backgroundColor": "transparent",
+			"bold": false,
+			"italic": false
+		},
+		{
+			"tag": "?",
+			"color": "#3498DB"
+		},
+		{
+			"tag": "//",
+			"color": "#474747",
+			"strikethrough": true
+		},
+		{
+			"tag": "TODO",
+			"color": "#000000",
+			"backgroundColor": "#FF8C00"
+		},
+		{
+			"tag": "*",
+			"color": "#28FF00"
+		},
+		{
+			"tag": "FIXME",
+			"color": "#000000",
+			"backgroundColor": "#FFCC00"
+		},
+		{
+			"tag": "HACK",
+			"color": "#000000",
+			"backgroundColor": "#FF8C00"
+		},
+		{
+			"tag": "BUG",
+			"color": "#000000",
+			"backgroundColor": "#FF2D00"
+		},
+		{
+			"tag": "UNDO",
+			"color": "#000000",
+			"backgroundColor": "#3498DB"
+		}
+	],
+
+	"yaml.customTags": [
+		"!reference sequence",
+		// CloudFormation custom tags
+		// https://github.com/redhat-developer/vscode-yaml/issues/669
+		"!And sequence",
+		"!And",
+		"!Base64 scalar",
+		"!Base64",
+		"!Cidr sequence",
+		"!Cidr",
+		"!Condition",
+		"!Condition scalar",
+		"!Equals sequence",
+		"!Equals",
+		"!FindInMap sequence",
+		"!FindInMap",
+		"!GetAtt",
+		"!GetAtt scalar",
+		"!GetAZs",
+		"!GetAZs scalar",
+		"!If sequence",
+		"!If",
+		"!ImportValue",
+		"!ImportValue scalar",
+		"!Join sequence",
+		"!Join",
+		"!Not sequence",
+		"!Not",
+		"!Or sequence",
+		"!Or",
+		"!Ref",
+		"!Ref scalar",
+		"!Select sequence",
+		"!Select",
+		"!Split sequence",
+		"!Split",
+		"!Sub sequence",
+		"!Sub",
+		"!Transform sequence",
+		"!Transform",
+		"!ValueOf",
+		"!ValueOf scalar",
+		"!ImportNoChecks",
+		"!ImportNoChecks scalar"
+		// Add any other CloudFormation intrinsic functions you use
+	]
+}
