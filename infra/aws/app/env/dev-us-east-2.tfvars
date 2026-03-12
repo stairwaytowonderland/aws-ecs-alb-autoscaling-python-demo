@@ -1,5 +1,5 @@
-aws_region            = "us-east-2"
-environment           = "dev"
+aws_region  = "us-east-2"
+environment = "dev"
 # application_name      = "candidate-app"
 dynamodb_table_name   = "Candidates"
 health_check_path     = "/gtg"
@@ -8,7 +8,7 @@ handle_docker         = true
 force_docker_rebuild  = false
 docker_build_context  = "../../.."
 dockerfile_path_rel   = "docker/Dockerfile"
-create_local_pem_file = true
+create_local_pem_file = false
 additional_tags = {
   Sandbox = true
   Owner   = "Andrew Haller"
