@@ -393,7 +393,7 @@ class App(BaseApi):
         self._file_parser.add_argument(
             "config_options",
             type=str,
-            location="form",
+            location=["form", "args"],
             required=False,
             help="JSON string with configuration overrides",
         )
@@ -868,9 +868,22 @@ john.q.doe@example.com
 """,
 ).strip()
 
+_CONFIG_OPTIONS_EXAMPLE = json.dumps(
+    {"style_constants": {"paragraph_lists": False}},
+    indent=0,
+)
+
 # Patch the generated spec to describe multipart/form-data request bodies.
 # The library does not support FileStorage type in @swagger.reqparser, so we
 # update the live spec dict directly after resource registration.
+_CONFIG_OPTIONS_PARAM = {
+    "name": "config_options",
+    "in": "query",
+    "required": False,
+    "description": f"JSON string with configuration overrides\n\nExample:\n{_CONFIG_OPTIONS_EXAMPLE}",
+    "schema": {"type": "string"},
+    "example": "",
+}
 _FORM_REQUEST_BODY = {
     "content": {
         "multipart/form-data": {
@@ -881,11 +894,6 @@ _FORM_REQUEST_BODY = {
                         "type": "string",
                         "format": "binary",
                         "description": "Markdown resume file (.md)",
-                    },
-                    "config_options": {
-                        "type": "string",
-                        "description": "JSON string with configuration overrides",
-                        "example": "",
                     },
                 },
             },
@@ -904,6 +912,9 @@ _FORM_REQUEST_BODY = {
 _spec = app.api.open_api_object
 for _path in ("/convert/docx", "/convert/pdf"):
     _spec["paths"][_path]["post"]["requestBody"] = copy.deepcopy(_FORM_REQUEST_BODY)
+    _spec["paths"][_path]["post"].setdefault("parameters", []).append(
+        copy.deepcopy(_CONFIG_OPTIONS_PARAM),
+    )
 
 
 # get_swagger_blueprint has two quirks that require workarounds:
