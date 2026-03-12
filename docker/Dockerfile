@@ -107,4 +107,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 ENTRYPOINT ["/usr/bin/tini", "--"]
 
 # Run the application with gunicorn
-CMD ["gunicorn", "-c", "gunicorn.conf.py", "api:resume_app"]
+CMD ["gunicorn", "-c", "gunicorn.py", "api:resume_app"]

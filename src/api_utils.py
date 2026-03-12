@@ -1,10 +1,12 @@
-import os
+"""Helper functions for API interactions, such as fetching instance metadata from the EC2 metadata service."""
 
-from enum import Enum
-import urllib, urllib.request
+import os
+import urllib
+import urllib.request
 
 health_check_timeout = os.environ.get(
-    "APP_HEALTH_CHECK_TIMEOUT", os.environ.get("TF_VAR_app_health_check_timeout", 30)
+    "APP_HEALTH_CHECK_TIMEOUT",
+    os.environ.get("TF_VAR_app_health_check_timeout", "30"),  # noqa: SIM112
 )
 
 
@@ -16,8 +18,7 @@ def _get_token(timeout: int = 30) -> str | None:
 
     try:
         response = urllib.request.urlopen(req, timeout=timeout)
-        token = response.read().decode()
-        return token
+        return response.read().decode()
     except urllib.error.HTTPError as e:
         print(f"HTTPError: {e.code} - {e.reason}")
     except urllib.error.URLError as e:
@@ -27,10 +28,13 @@ def _get_token(timeout: int = 30) -> str | None:
             # https://docs.python.org/3/library/urllib.error.html
             msg = f"{e.reason} -- probably not connected to EC2"
             raise urllib.error.HTTPError(
-                url=url, hdrs=headers, msg=msg, code=504, fp=None
-            )  # No need for fp when exeption is re-raised
-        else:
-            raise Exception({"details": {"reason": str(e.reason), "code": 500}})
+                url=url,
+                hdrs=headers,
+                msg=msg,
+                code=504,
+                fp=None,
+            ) from None  # No need for fp when exeption is re-raised
+        raise Exception({"details": {"reason": str(e.reason), "code": 500}}) from None
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
@@ -43,8 +47,7 @@ def _get_instance_id(token: str) -> str | None:
 
     try:
         response = urllib.request.urlopen(req)
-        instance_id = response.read().decode()
-        return instance_id
+        return response.read().decode()
     except urllib.error.HTTPError as e:
         print(f"HTTPError: {e.code} - {e.reason}")
     except urllib.error.URLError as e:
@@ -52,11 +55,11 @@ def _get_instance_id(token: str) -> str | None:
 
 
 def get_instance_id(timeout: int) -> str:
-    """Helper to get the instance id
+    """Get the instance id
 
     Args:
         timeout: (int) The request timeout in seconds
+
     """
     token = _get_token(timeout)
-    instance_id = _get_instance_id(token)
-    return instance_id
+    return _get_instance_id(token)

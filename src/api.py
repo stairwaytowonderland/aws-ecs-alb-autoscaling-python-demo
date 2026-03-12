@@ -1,6 +1,4 @@
-"""
-API implementation for the Resume Markdown to DOCX converter application.
-"""
+"""API implementation for the Resume Markdown to DOCX converter application."""
 
 import argparse
 import copy
@@ -13,13 +11,19 @@ import urllib
 import uuid
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import yaml
 from flask import Flask, request
 from flask.wrappers import Response
 from flask_restful import reqparse
-from flask_restful_swagger_3 import Api, Resource, Schema, swagger
+from flask_restful_swagger_3 import (
+    Api,
+    Resource,
+    Schema,
+    get_swagger_blueprint,
+    swagger,
+)
 from werkzeug.datastructures import FileStorage
 
 try:
@@ -54,7 +58,7 @@ except ImportError:
 logging.basicConfig(
     level=logging.INFO,
     datefmt="%Y-%m-%d %H:%M:%S",
-    format="%(asctime)s.%(msecs)d %(levelname)-8s " +
+    format="%(asctime)s.%(msecs)d %(levelname)-8s "
     "[%(processName)s] [%(threadName)s] %(filename)s:%(funcName)s:%(lineno)d --- %(message)s",
 )
 
@@ -65,13 +69,13 @@ API_CONFIG_FILE = Path(os.environ.get("API_CONFIG_FILE", "api_config.yaml"))
 class ApiConfig:
     """Application configuration class"""
 
-    def __init__(self, api_config_file: Path):
+    def __init__(self, api_config_file: Path) -> None:
         """Initialize the application configuration
 
         Args:
             api_config_file (Path): Path to the API configuration file
-        """
 
+        """
         self._config_file = api_config_file
         self._config_file_realpath = api_config_file.absolute().resolve()
         self._config = self.load_app_config()
@@ -85,6 +89,7 @@ class ApiConfig:
 
         Returns:
             dict: Document defaults configuration
+
         """
         return Path(self._config_file)
 
@@ -94,6 +99,7 @@ class ApiConfig:
 
         Returns:
             dict: Document defaults configuration
+
         """
         return Path(self._config_file_realpath)
 
@@ -103,6 +109,7 @@ class ApiConfig:
 
         Returns:
             dict: Complete configuration dictionary
+
         """
         return self._config
 
@@ -112,6 +119,7 @@ class ApiConfig:
 
         Returns:
             str: Server name for the API
+
         """
         return self._server
 
@@ -121,6 +129,7 @@ class ApiConfig:
 
         Returns:
             dict: Mimetypes configuration
+
         """
         return self._config.get("mimetypes", {})
 
@@ -130,6 +139,7 @@ class ApiConfig:
 
         Returns:
             dict: Cors configuration
+
         """
         return self._config.get("cors", {})
 
@@ -139,6 +149,7 @@ class ApiConfig:
 
         Returns:
             dict: Logging configuration
+
         """
         return self._config.get("logging", {})
 
@@ -148,6 +159,7 @@ class ApiConfig:
 
         Returns:
             dict: Input configuration
+
         """
         return self._config.get("input", {})
 
@@ -157,6 +169,7 @@ class ApiConfig:
 
         Returns:
             dict: Output configuration
+
         """
         return self._config.get("output", {})
 
@@ -166,11 +179,13 @@ class ApiConfig:
 
         Returns:
             dict: Application configuration
+
         """
-        if os.path.exists(self._config_file_realpath):
+        if self._config_file_realpath.exists():
             try:
-                with open(
-                    self._config_file_realpath, "r", encoding="utf-8", errors="replace"
+                with self._config_file_realpath.open(
+                    encoding="utf-8",
+                    errors="replace",
                 ) as f:
                     return yaml.safe_load(f)
             except Exception as e:
@@ -184,13 +199,13 @@ class ApiConfig:
 class BaseApi:
     """Base class for Flask application"""
 
-    def __init__(self, api_config_file: Path):
+    def __init__(self, api_config_file: Path) -> None:
         """Initialize the API Base
 
         Args:
             api_config_file (Path): Path to the API configuration file
-        """
 
+        """
         # Load application configuration
         api_config = ApiConfig(api_config_file)
 
@@ -226,6 +241,7 @@ class BaseApi:
 
         Returns:
             Flask: Flask application instance
+
         """
         return self._app
 
@@ -235,6 +251,7 @@ class BaseApi:
 
         Returns:
             Api: API instance
+
         """
         return self._api
 
@@ -244,6 +261,7 @@ class BaseApi:
 
         Returns:
             ApiConfig: API configuration instance
+
         """
         return self._api_config
 
@@ -253,6 +271,7 @@ class BaseApi:
 
         Returns:
             str: Host for the API
+
         """
         return self._host
 
@@ -262,17 +281,22 @@ class BaseApi:
 
         Returns:
             int: Port for the API
+
         """
         return self._port
 
-    def run(self, program_description: str = None, epilog_text: str = None) -> None:
+    def run(
+        self,
+        program_description: str | None = None,
+        epilog_text: str | None = None,
+    ) -> None:
         """Run the Flask application
 
         Args:
-            program_description (str): Description of the program
-            epilog_text (str): Epilog text for the help message
-        """
+            program_description (str | None): Description of the program
+            epilog_text (str | None): Epilog text for the help message
 
+        """
         # Parse command line arguments with enhanced help
         parser = argparse.ArgumentParser(
             description=program_description,
@@ -321,9 +345,10 @@ class BaseApi:
                     r"/convert/*": {
                         "origins": cors_config.get("origins", "*"),
                         "expose_headers": cors_config.get(
-                            "expose_headers", ["Content-Disposition"]
+                            "expose_headers",
+                            ["Content-Disposition"],
                         ),
-                    }
+                    },
                 },
                 supports_credentials=cors_config.get("supports_credentials", "*"),
             )
@@ -332,8 +357,10 @@ class BaseApi:
 
 
 class ErrorSchema(Schema):
-    type = "object"
-    properties = {
+    """Schema for error responses"""
+
+    type: ClassVar[str] = "object"
+    properties: ClassVar[dict] = {
         "success": {
             "type": "boolean",
             "description": "Whether the operation was successful",
@@ -345,19 +372,13 @@ class ErrorSchema(Schema):
 class App(BaseApi):
     """API class for handling resume conversion"""
 
-    TEXT_SCHEMA = {
-        "type": "string",
-        "format": "text",
-        "description": "Raw markdown content for conversion",
-        "nullable": True,  # This makes the field optional,
-    }
-
-    def __init__(self, api_config_file: Path):
+    def __init__(self, api_config_file: Path) -> None:
         """Initialize the API
 
         Args:
             app (Flask): Flask application instance
             api_config (ApiConfig): Application configuration instance
+
         """
         super().__init__(api_config_file)
 
@@ -383,42 +404,53 @@ class App(BaseApi):
 
         Returns:
             RequestParser: The request parser instance
+
         """
         return self._file_parser
 
-    def _check_extension(self, expected_extension: str, filename: Path = None) -> bool:
+    def _check_extension(
+        self,
+        expected_extension: str,
+        filename: Path | None = None,
+    ) -> bool:
         """Check if the file has a valid extension
 
         Args:
             expected_extension (str): Expected file extension
-            filename (Path): File name to check
+            filename (Path | None): File name to check
 
         Returns:
             bool: True if the file has a valid extension, False otherwise
 
         Raises:
             ValueError: If the file extension is invalid
+
         """
         # Check if the file has a valid extension
-        if filename and not filename.suffix == f".{expected_extension}":
+        if filename and filename.suffix != f".{expected_extension}":
+            msg = f"Invalid file extension: .{expected_extension} is expected"
             raise ValueError(
-                f"Invalid file extension: .{expected_extension} is expected"
+                msg,
             )
         return True
 
     def error_response(
-        self, code: int, error: object, message: str = None
+        self,
+        code: int,
+        error: object,
+        message: str | None = None,
     ) -> tuple[dict[str, Any], int]:
         """Return a JSON error response
 
         Args:
-            message (str): Error message to return
+            message (str | None): Error message to return
             level (int): HTTP status code
 
         Returns:
             tuple: JSON response with error message and status code
+
         """
-        msg = f"{message}: {str(error)}" if message else str(error)
+        msg = f"{message}: {error!s}" if message else str(error)
         self._app.logger.error(msg)
         return {
             "success": False,
@@ -443,6 +475,7 @@ class App(BaseApi):
 
         Returns:
             Response: Flask response with the generated file
+
         """
         self._app.logger.info(f"Markdown input file: {md_input_path}")
         self._app.logger.info(f"Docx output file: {docx_output_path}")
@@ -465,7 +498,7 @@ class App(BaseApi):
             # Process DOCX if requested
             if DOCX_EXTENSION in output_formats:
                 self._app.logger.info(f"Output extension: {DOCX_EXTENSION}")
-                if os.path.exists(docx_path):
+                if Path(docx_path).exists():
                     output_file = docx_path
                     mime_types = self._api_config.mimetypes.get("docx")
 
@@ -473,76 +506,81 @@ class App(BaseApi):
             elif PDF_EXTENSION in output_formats:
                 self._app.logger.info(f"Output extension: {PDF_EXTENSION}")
                 pdf_path = convert_to_pdf(docx_path)
-                if pdf_path and os.path.exists(pdf_path):
+                if pdf_path and Path(pdf_path).exists():
                     self._app.logger.info(f"PDF conversion successful: {pdf_path}")
                     output_file = pdf_path
                     mime_types = self._api_config.mimetypes.get("pdf")
 
             else:
-                raise ValueError("Invalid output format specified")
+                msg = "Invalid output format specified"
+                raise ValueError(msg)
+
+            output_file_path = Path(output_file)
 
             # If we don't have a file to return, that's an error
-            self._app.logger.info(f"Output file: {output_file}")
-            if not output_file or not os.path.exists(output_file):
-                raise Exception(f"Failed to generate output file: {output_file}")
+            self._app.logger.info(f"Output file: {output_file_path}")
+            if not output_file or not output_file_path.exists():
+                msg = f"Failed to generate output file: {output_file_path}"
+                raise Exception(msg)
 
-            download_name = os.path.basename(output_file)
-            self._app.logger.info(f"Successfully created: {output_file}")
+            download_name = output_file_path.name
+            self._app.logger.info(f"Successfully created: {output_file_path}")
 
             # Read file into memory before temp dir is cleaned up
             if True:
                 from flask import send_file
 
-                with open(output_file, "rb") as f:
+                with output_file_path.open("rb") as f:
                     file_data = BytesIO(f.read())
 
-                response = send_file(
+                return send_file(
                     file_data,
                     as_attachment=True,
                     download_name=download_name,
                     mimetype=mime_types[0],
                 )
-            else:
-                from flask import send_from_directory
+            # else:
+            #     from flask import send_from_directory
 
-                # Return the appropriate file directly from the temp directory
-                # Add explicit filename in Content-Disposition header for curl -O
-                # Existing behavior - direct file download
-                response = send_from_directory(
-                    directory=docx_output_path.parent,
-                    path=output_file.name,
-                    as_attachment=True,
-                    download_name=download_name,
-                    mimetype=mime_types[0],
-                )
+            #     # Return the appropriate file directly from the temp directory
+            #     # Add explicit filename in Content-Disposition header for curl -O
+            #     # Existing behavior - direct file download
+            #     response = send_from_directory(
+            #         directory=docx_output_path.parent,
+            #         path=output_file_path.name,
+            #         as_attachment=True,
+            #         download_name=download_name,
+            #         mimetype=mime_types[0],
+            #     )
 
-                # Force proper filename in Content-Disposition header
-                response.headers["Content-Disposition"] = (
-                    f'attachment; filename="{download_name}"'
-                )
+            #     # Force proper filename in Content-Disposition header
+            #     response.headers["Content-Disposition"] = (
+            #         f'attachment; filename="{download_name}"'
+            #     )
 
-            return response
+            #     return response
 
         except ValueError as e:
-            return self.error_response(400, f"Value error: {str(e)}")
+            return self.error_response(400, f"Value error: {e!s}")
         except FileNotFoundError as e:
             return self.error_response(404, e, "File not found")
         except Exception as e:
-            return self.error_response(400, f"Error: {str(e)}")
+            return self.error_response(400, f"Error: {e!s}")
 
     def post(
         self,
         output_format: str = DEFAULT_OUTPUT_FORMAT,
-        request_body: str = None,
+        request_body: str | None = None,
     ) -> Response | tuple[dict[str, Any], int]:
         """Convert markdown resume to DOCX and optionally PDF
 
         Args:
             output_format (str): Output format to generate (docx or pdf)
-            request_body (str): Raw markdown content from request body
+            request_body (str | None): Raw markdown content from request body
 
         Returns:
             Response: Flask response with the generated file
+
         """
         # Always load the config
         config_loader = ConfigLoader()
@@ -589,7 +627,9 @@ class App(BaseApi):
                 config_data = json.loads(args["config_options"])
             except json.JSONDecodeError as e:
                 return self.error_response(
-                    400, e, "Invalid JSON in config_options parameter"
+                    400,
+                    e,
+                    "Invalid JSON in config_options parameter",
                 )
 
         self._resolve_config_helper(config_loader, config_data)
@@ -610,14 +650,14 @@ class App(BaseApi):
                     # Write the input text to a file, preserving non-UTF-8 characters
                     try:
                         # First try UTF-8
-                        with open(temp_input_path, "w", encoding="utf-8") as f:
+                        with temp_input_path.open("w", encoding="utf-8") as f:
                             f.write(request_body)
                     except UnicodeEncodeError:
                         # If that fails, write binary
                         self._app.logger.info(
-                            "UTF-8 encoding failed, writing as binary"
+                            "UTF-8 encoding failed, writing as binary",
                         )
-                        with open(temp_input_path, "wb") as f:
+                        with temp_input_path.open("wb") as f:
                             f.write(request_body.encode("utf-8", errors="replace"))
 
                 # Prepare output paths directly in the temporary directory
@@ -641,13 +681,14 @@ class App(BaseApi):
     def _resolve_config_helper(
         self,
         config_loader: ConfigLoader,
-        config_options: dict[str, Any] = None,
+        config_options: dict[str, Any] | None = None,
     ) -> None:
         """Merge the provided config options with the existing config
 
         Args:
             config_loader (ConfigLoader): Existing config loader
             config_options (dict): Configuration options to merge
+
         """
         if config_options:
             self._app.logger.info(f"Merging custom configuration: {config_options}")
@@ -657,22 +698,23 @@ class App(BaseApi):
                 if section_key in config_loader.config:
                     # If section exists in default config, update it
                     if isinstance(section_values, dict) and isinstance(
-                        config_loader.config[section_key], dict
+                        config_loader.config[section_key],
+                        dict,
                     ):
                         self._app.logger.debug(
-                            f"Merging section '{section_key}' with values: {section_values}"
+                            f"Merging section '{section_key}' with values: {section_values}",
                         )
                         config_loader.config[section_key].update(section_values)
                     else:
                         # Replace the entire section if it's not a mergeable dictionary
                         self._app.logger.debug(
-                            f"Replacing section '{section_key}' with values: {section_values}"
+                            f"Replacing section '{section_key}' with values: {section_values}",
                         )
                         config_loader.config[section_key] = section_values
                 else:
                     # Add new section if it doesn't exist
                     self._app.logger.debug(
-                        f"Adding new section '{section_key}' with values: {section_values}"
+                        f"Adding new section '{section_key}' with values: {section_values}",
                     )
                     config_loader.config[section_key] = section_values
 
@@ -681,18 +723,14 @@ app = App(SCRIPT_DIR / API_CONFIG_FILE)
 
 
 @app.app.route("/", methods=["GET"])
-def default():
-    """
-    Default GET endpoint
-    """
+def default() -> tuple[dict[str, str], int]:
+    """Default GET endpoint"""
     return {"status": "invalid request"}, 400
 
 
 @app.app.route("/gtg", methods=["GET"])
-def gtg():
-    """
-    /gtg GET endpoint
-    """
+def gtg() -> Response | tuple[dict[str, str], int]:
+    """/gtg GET endpoint"""
     try:
         details = request.args.get("details", None)
         if details is not None:
@@ -708,9 +746,8 @@ def gtg():
 
 
 class ConvertDocxResource(Resource):
-    """
-    Resource for converting markdown resume to DOCX
-    """
+    """Resource for converting markdown resume to DOCX"""
+
     @swagger.tags("Convert")
     @swagger.response(200, "Success - Returns DOCX file download", no_content=True)
     @swagger.response(400, "Bad Request", schema=ErrorSchema)
@@ -725,15 +762,15 @@ class ConvertDocxResource(Resource):
 
         Returns:
             Response: Flask response with the generated DOCX file
+
         """
         content = request.get_data(as_text=True)
         return app.post(output_format=DOCX_EXTENSION, request_body=content)
 
 
 class ConvertPdfResource(Resource):
-    """
-    Resource for converting markdown resume to PDF
-    """
+    """Resource for converting markdown resume to PDF"""
+
     @swagger.tags("Convert")
     @swagger.response(200, "Success - Returns PDF file download", no_content=True)
     @swagger.response(400, "Bad Request", schema=ErrorSchema)
@@ -748,6 +785,7 @@ class ConvertPdfResource(Resource):
 
         Returns:
             Response: Flask response with the generated PDF file
+
         """
         content = request.get_data(as_text=True)
         return app.post(output_format=PDF_EXTENSION, request_body=content)
@@ -827,7 +865,7 @@ john.q.doe@example.com
 
 **Phone**
 (555) 123-4567
-"""
+""",
 ).strip()
 
 # Patch the generated spec to describe multipart/form-data request bodies.
@@ -850,15 +888,14 @@ _FORM_REQUEST_BODY = {
                         "example": "",
                     },
                 },
-            }
+            },
         },
         "text/plain": {
             "schema": {
                 "type": "string",
                 "description": "Raw markdown content",
-                # Multiline example with non-UTF-8 characters to demonstrate encoding handling
-                "default": _MARKDOWN_SAMPLE,
-            }
+                "example": _MARKDOWN_SAMPLE,
+            },
         },
     },
     "description": "Markdown resume (multipart file upload or raw text body)",
@@ -869,33 +906,29 @@ for _path in ("/convert/docx", "/convert/pdf"):
     _spec["paths"][_path]["post"]["requestBody"] = copy.deepcopy(_FORM_REQUEST_BODY)
 
 
-@app.app.route("/swagger")
-def swagger_ui_page():
-    """Swagger UI for the Resume Markdown to DOCX API"""
-    return """<!DOCTYPE html>
-<html>
-<head>
-  <title>Resume Markdown to DOCX API</title>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://unpkg.com/swagger-ui-dist@5/swagger-ui.css">
-</head>
-<body>
-  <div id="swagger-ui"></div>
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
-  <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-standalone-preset.js"></script>
-  <script>
-    window.onload = () => {
-      SwaggerUIBundle({
-        url: "/api/doc/swagger.json",
-        dom_id: "#swagger-ui",
-        presets: [SwaggerUIBundle.presets.apis, SwaggerUIBundle.SwaggerUIStandalonePreset],
-        layout: "BaseLayout"
-      })
-    }
-  </script>
-</body>
-</html>"""
+# get_swagger_blueprint has two quirks that require workarounds:
+# 1. It re-validates the spec and rejects manually patched inline schemas
+#    (validate_schema_object calls validate_reference_object on every dict
+#    value, failing anything that isn't a bare {"$ref": "..."}).
+#    Fix: temporarily replace the validator with a no-op.
+# 2. It reads SWAGGER_BLUEPRINT_URL_PREFIX from current_app.config to set
+#    base_url for static asset URLs in the template. Without an active app
+#    context it falls back to "", rendering assets as /swagger-ui.css (404).
+#    Fix: set the config key and push an app context before calling it.
+import flask_restful_swagger_3 as _frs3
+
+app.app.config["SWAGGER_BLUEPRINT_URL_PREFIX"] = "/swagger"
+_original_validate = _frs3.validate_open_api_object
+_frs3.validate_open_api_object = lambda x: None  # noqa: ARG005
+with app.app.app_context():
+    swagger_bp = get_swagger_blueprint(
+        app.api.open_api_object,
+        swagger_prefix_url="/api/doc",
+        swagger_url="/swagger.json",
+        title="Resume Markdown to DOCX API",
+    )
+validate_open_api_object = _original_validate
+app.app.register_blueprint(swagger_bp, url_prefix="/swagger")
 
 
 if __name__ == "__main__":

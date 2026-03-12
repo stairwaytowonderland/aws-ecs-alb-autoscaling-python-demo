@@ -3,3 +3,23 @@
 line-length = 88
 target-version = ['py310', 'py311', 'py312']
 include = '\.pyi?$'
+
+[tool.ruff.lint]
+select = ["ALL"]
+
+# Ignore specific rule codes
+ignore = [
+	"BLE001",
+	"D400",
+	"D415",
+	"D417",
+	"E402",
+	"E501",
+	"ERA001",
+	"G004",
+	"PLC0415",
+	"S310",
+	"T201",
+	"TRY002",
+	"TRY301",
+]
