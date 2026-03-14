@@ -8,6 +8,7 @@ set -e
 USE_PPA_IF_AVAILABLE="${USE_PPA_IF_AVAILABLE:-true}"
 PYTHON_INSTALL_PATH="${PYTHON_INSTALL_PATH:-/usr/local/python}"
 VERSION="${PYTHON_VERSION:-latest}"
+INSTALL_PATH="${INSTALL_PATH:-"${PYTHON_INSTALL_PATH}/${PYTHON_VERSION}"}"
 
 # shellcheck disable=SC1090
 . "$INSTALL_HELPER"
@@ -129,11 +130,15 @@ install_python() {
     major_version=$(get_major_version "$VERSION")
     major_minor_version=$(get_major_minor_version "$VERSION")
 
-    INSTALL_PATH=${INSTALL_PATH:-"${PYTHON_INSTALL_PATH}/${major_minor_version}"}
-
     install_cpython "$VERSION"
 
+    updaterc "if [[ \"\${PATH}\" != *\"${INSTALL_PATH}/bin\"* ]]; then export \"PATH=${INSTALL_PATH}/bin:\${PATH}\"; fi"
     updaterc "PYTHON_VERSION=${VERSION}"
+    {
+        echo "PYTHON_VERSION=${VERSION}"
+        echo "PYTHON_INSTALL_PATH=${INSTALL_PATH}"
+        echo "PATH=${INSTALL_PATH}/bin:${PATH}"
+    } >> /etc/environment
 
     PYTHON_SRC_ACTUAL="${INSTALL_PATH}/bin/python${major_minor_version}"
     PATH="${INSTALL_PATH}/bin:${PATH}"

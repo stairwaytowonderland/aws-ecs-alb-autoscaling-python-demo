@@ -38,7 +38,7 @@ USER root
 
 RUN /tmp/lib-scripts/python-install.sh \
   # Cleanup build dependencies but keep the Python installation
-  && rm -rf $INSTALL_PATH/include \
+  && rm -rf $INSTALL_PATH/include/* \
   && apt-get clean -y \
   && apt-get -y autoremove \
   && rm -rf /var/lib/apt/lists/*
@@ -140,9 +140,8 @@ RUN apt-get update \
     ca-certificates \
     curl \
     jq \
-    libffi8 \
-    libssl3 \
 		libreoffice-common \
+    # ! CVE-2026-3731: libssh-4
     libreoffice-writer \
 		tini \
   && INSTALL_PATH=$PYTHON_INSTALL_PATH/$PYTHON_VERSION /tmp/lib-scripts/python-configure.sh \

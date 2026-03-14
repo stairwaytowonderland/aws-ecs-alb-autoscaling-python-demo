@@ -22,6 +22,8 @@ updaterc() {
     esac
 }
 
+get_major_minor_version() { echo "$1" | cut -d. -f1,2; }
+
 get_alternatives_priority() {
     { update-alternatives --display "${1}${2-}" 2> /dev/null || echo "priority -1"; } | awk '/priority/ {print $NF}' | sort -n | head -n 1
 }
@@ -31,11 +33,13 @@ make_links() {
         [ -e "${INSTALL_PATH}/bin/${py}" ] || ln -s "${INSTALL_PATH}/bin/${py}${major_version}" "${INSTALL_PATH}/bin/${py}"
     done
     [ -e "${INSTALL_PATH}/bin/python-config" ] || ln -s "${INSTALL_PATH}/bin/python${major_version}-config" "${INSTALL_PATH}/bin/python-config"
+    ln -s "${PYTHON_INSTALL_PATH}/${PYTHON_VERSION}" "/usr/local/lib/python${major_minor_version}"
 }
 
 configure_python() {
     VERSION="$(cat "${INSTALL_PATH}/.manifest" | jq -r '.version')"
     major_version=$(get_major_version "$VERSION")
+    major_minor_version=$(get_major_minor_version "$VERSION")
 
     SYSTEM_PYTHON="$(command -v "/usr/bin/python${major_version}" || true)"
     ALTERNATIVES_PATH="${ALTERNATIVES_PATH:-/usr/local/bin}"
