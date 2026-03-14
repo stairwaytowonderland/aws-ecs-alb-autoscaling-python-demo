@@ -128,22 +128,28 @@ ENV PYTHON_VERSION=${PYTHON_VERSION} \
     # Default to Candidates table if not specified at runtime
     TC_DYNAMO_TABLE=Candidates
 
+COPY --chmod=755 docker/lib-scripts/python-configure.sh docker/lib-scripts/libssh-install.sh /tmp/lib-scripts/
 COPY --from=pybuilder $LOGGER $PIP_INSTALL $INSTALL_HELPER /usr/local/bin/
-COPY --from=pybase /tmp/lib-scripts/python-configure.sh /tmp/lib-scripts/
 COPY --from=builder $PYTHON_INSTALL_PATH/$PYTHON_VERSION $PYTHON_INSTALL_PATH/$PYTHON_VERSION
 
 USER root
 
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
 	&& apt-get install -y --no-install-recommends \
     ca-certificates \
     curl \
     jq \
-		libreoffice-common \
+		tini \
+  && if [ "$PARENT_IMAGE" = "ubuntu" ]; then \
+    apt-get install -y --no-install-recommends software-properties-common \
+      && add-apt-repository -y ppa:libreoffice/ppa && apt-get update \
+      && apt-get -y remove software-properties-common; \
+  fi \
+  && apt-get install -y --no-install-recommends \
+    libreoffice-common \
     # ! CVE-2026-3731: libssh-4
     libreoffice-writer \
-		tini \
+  && apt-get update \
   && INSTALL_PATH=$PYTHON_INSTALL_PATH/$PYTHON_VERSION /tmp/lib-scripts/python-configure.sh \
 	# Cleanup
   && rm -rf /tmp/* \

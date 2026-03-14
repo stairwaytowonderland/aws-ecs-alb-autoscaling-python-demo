@@ -5,7 +5,6 @@
 # Pipepail (set -o pipefail) is not available in sh
 set -e
 
-USE_PPA_IF_AVAILABLE="${USE_PPA_IF_AVAILABLE:-true}"
 PYTHON_INSTALL_PATH="${PYTHON_INSTALL_PATH:-/usr/local/python}"
 VERSION="${PYTHON_VERSION:-latest}"
 INSTALL_PATH="${INSTALL_PATH:-"${PYTHON_INSTALL_PATH}/${PYTHON_VERSION}"}"
