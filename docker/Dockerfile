@@ -141,7 +141,17 @@ RUN apt-get update \
     jq \
 		tini \
   && if [ "$PARENT_IMAGE" = "ubuntu" ]; then \
-    apt-get install -y --no-install-recommends software-properties-common \
+    # As of Ubuntu 24 (Noble Numbat), the Ubuntu base image comes with a non-root user ubuntu with UID 1000.
+    # Delete this user to avoid conflicts when creating our own non-root user.
+    # Use 'userdel' to perform a shallow delete, and preserve htpasswd/group integrity for UID and GID.
+    if id "ubuntu" >/dev/null 2>&1; then \
+      $LOGGER "Deleting user 'ubuntu' for $PARENT_IMAGE" \
+        && userdel -r -f ubuntu > /dev/null 2>&1 \
+        || LEVEL=error $LOGGER "Failed to delete ubuntu user for $PARENT_IMAGE"; \
+    else \
+      $LOGGER "User 'ubuntu' does not exist for $PARENT_IMAGE"; \
+    fi \
+    && apt-get install -y --no-install-recommends software-properties-common \
       && add-apt-repository -y ppa:libreoffice/ppa && apt-get update \
       && apt-get -y remove software-properties-common; \
   fi \
@@ -156,16 +166,6 @@ RUN apt-get update \
 	&& apt-get clean -y \
 	&& apt-get -y autoremove \
 	&& rm -rf /var/lib/apt/lists/* \
-  # As of Ubuntu 24 (Noble Numbat), the Ubuntu base image comes with a non-root user ubuntu with UID 1000.
-  # Delete this user to avoid conflicts when creating our own non-root user.
-  # Use 'userdel' to perform a shallow delete, and preserve htpasswd/group integrity for UID and GID.
-  && if [ "$PARENT_IMAGE" = "ubuntu" ] && id "ubuntu" >/dev/null 2>&1; then \
-    $LOGGER "Deleting user 'ubuntu' for $PARENT_IMAGE" \
-      && userdel -r -f ubuntu > /dev/null 2>&1 \
-      || LEVEL=error $LOGGER "Failed to delete ubuntu user for $PARENT_IMAGE"; \
-  else \
-    $LOGGER "User 'ubuntu' does not exist for $PARENT_IMAGE"; \
-  fi \
 	# Create a non-root user to run the application, if it doesn't already exist
 	&& id "$USERNAME" >/dev/null 2>&1 || { \
 		groupadd --gid "$USER_GID" "$USERNAME" \
