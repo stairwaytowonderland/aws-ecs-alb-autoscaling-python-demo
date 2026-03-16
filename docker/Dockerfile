@@ -76,28 +76,53 @@ WORKDIR /home/$USERNAME
 
 FROM base AS devcontainer
 
-ARG USERNAME=vscode
+ARG USERNAME=vscode \
+    VENV_PATH=/opt/venv \
+    VENV_ENABLED=false
 
 USER root
 
 RUN apt-get update \
 	&& apt-get install -y --no-install-recommends sudo \
-	&& mkdir -p /opt/venv \
-	&& chown $USERNAME:$USERNAME /opt/venv \
 	# Cleanup
   && rm -rf /tmp/* \
 	&& apt-get clean -y \
 	&& apt-get -y autoremove \
 	&& rm -rf /var/lib/apt/lists/* \
-	# Add the user to the sudo group with passwordless sudo permissions
+  && if id "appuser" >/dev/null 2>&1; then \
+    $LOGGER "Deleting user 'appuser' for $IMAGE_NAME" \
+      && userdel -r -f appuser > /dev/null 2>&1 \
+      || LEVEL=error $LOGGER "Failed to delete appuser user for $IMAGE_NAME"; \
+  else \
+    $LOGGER "User 'appuser' does not exist for $IMAGE_NAME"; \
+  fi \
+  # Create a non-root user to run the application, if it doesn't already exist
+  && if ! id "$USERNAME" >/dev/null 2>&1; then \
+    $LOGGER "Creating user '$USERNAME' with UID $USER_UID and GID $USER_GID for $IMAGE_NAME" \
+      && groupadd --gid "$USER_GID" "$USERNAME" \
+      && useradd --uid "$USER_UID" --gid "$USER_GID" -m "$USERNAME" -s /bin/bash \
+      || LEVEL=error $LOGGER "Failed to create user '$USERNAME' for $IMAGE_NAME"; \
+      if id "$USERNAME" >/dev/null 2>&1; then \
+        $LOGGER "Changing ownership of /home/$USERNAME to $USERNAME" \
+        && chown "$USERNAME:$USERNAME" -R /home/"$USERNAME"; \
+      else \
+        $LOGGER "User '$USERNAME' does not exist for $IMAGE_NAME"; \
+        exit 1; \
+      fi; \
+  fi \
+  # Add the user to the sudo group with passwordless sudo permissions
 	&& echo "$USERNAME ALL=(ALL) NOPASSWD:ALL" > "/etc/sudoers.d/$USERNAME" \
 	&& chmod 0440 "/etc/sudoers.d/$USERNAME" \
+	&& mkdir -p $VENV_PATH \
+	&& chown $USERNAME:$USERNAME $VENV_PATH \
 	# Create a post-create script to set permissions on the /app directory for the non-root user
 	&& touch /usr/local/bin/post-start \
 	&& chmod +x /usr/local/bin/post-start \
 	&& cat >> /usr/local/bin/post-start <<'EOF'
 #!/bin/sh
 set -e
+python3 --version
+pip3 --version
 aws --version
 terraform --version
 EOF
@@ -105,12 +130,17 @@ EOF
 USER $USERNAME
 WORKDIR /home/$USERNAME
 
+COPY --from=builder /usr/local/bin /usr/local/bin/
+COPY --from=builder $PYTHON_INSTALL_PATH/site-packages/ $PYTHON_INSTALL_PATH/site-packages
 COPY --chown=$USERNAME:$USERNAME . .
 
-RUN python3 -m venv /opt/venv \
-	&& . /opt/venv/bin/activate \
-	&& python3 -m pip install --upgrade --no-cache-dir -r src/requirements/requirements-dev.txt \
-	&& echo '. /opt/venv/bin/activate' >> /home/$USERNAME/.bashrc
+RUN if [ "$VENV_ENABLED" = "true" ]; then \
+    python3 -m venv $VENV_PATH \
+    && . $VENV_PATH/bin/activate \
+    && python3 -m pip install --upgrade --no-cache-dir pip \
+    && python3 -m pip install --upgrade --no-cache-dir -r src/requirements/requirements-dev.txt \
+    && echo ". $VENV_PATH/bin/activate" >> /home/$USERNAME/.bashrc; \
+  fi
 
 
 FROM base AS app
