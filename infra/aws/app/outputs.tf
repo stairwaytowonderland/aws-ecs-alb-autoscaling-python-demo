@@ -8,6 +8,11 @@ output "vpc_id" {
   value       = local.vpc_id
 }
 
+output "vpc_cidr_block" {
+  description = "CIDR block of the VPC used for EC2 instances"
+  value       = module.alb.vpc_cidr_block
+}
+
 output "src_hash" {
   description = "Combined hash of the source files used for building the Docker image"
   value       = local.src_hash

@@ -43,6 +43,10 @@ module "example" {
 
 | Name | Type |
 |------|------|
+| [aws_apigatewayv2_api.self](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apigatewayv2_api) | resource |
+| [aws_apigatewayv2_integration.self](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apigatewayv2_integration) | resource |
+| [aws_apigatewayv2_route.self](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apigatewayv2_route) | resource |
+| [aws_apigatewayv2_stage.self](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/apigatewayv2_stage) | resource |
 | [aws_iam_role_policy.dynamodb_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [local_file.private_key_pem_file](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
 | [aws_caller_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
@@ -98,5 +102,6 @@ module "example" {
 | <a name="output_src_files"></a> [src\_files](#output\_src\_files) | List of the source files used for building the Docker image |
 | <a name="output_src_hash"></a> [src\_hash](#output\_src\_hash) | Combined hash of the source files used for building the Docker image |
 | <a name="output_src_hashes"></a> [src\_hashes](#output\_src\_hashes) | List of separate hashes of the source files used for building the Docker image |
+| <a name="output_vpc_cidr_block"></a> [vpc\_cidr\_block](#output\_vpc\_cidr\_block) | CIDR block of the VPC used for EC2 instances |
 | <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | ID of the VPC used for EC2 instances |
 <!-- END_TF_DOCS -->

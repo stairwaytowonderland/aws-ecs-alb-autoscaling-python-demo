@@ -40,7 +40,7 @@ resource "aws_security_group" "app" {
     from_port   = 8000
     to_port     = 8000
     protocol    = "tcp"
-    cidr_blocks = ["10.0.0.0/16"]
+    cidr_blocks = [module.vpc.vpc_attributes.cidr_block]
     description = "Allow HTTP traffic on port 8000"
   }
 

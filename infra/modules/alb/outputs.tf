@@ -32,3 +32,8 @@ output "security_group_id" {
   description = "The ID of the ALB security group"
   value       = aws_security_group.alb.id
 }
+
+output "vpc_cidr_block" {
+  description = "The CIDR block of the VPC"
+  value       = local.vpc_cidr_block
+}

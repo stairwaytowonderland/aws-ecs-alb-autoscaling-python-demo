@@ -31,6 +31,7 @@ module "example" {
 | [aws_lb_listener.http](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_listener) | resource |
 | [aws_lb_target_group.app](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/lb_target_group) | resource |
 | [aws_security_group.alb](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/security_group) | resource |
+| [aws_vpc.self](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/vpc) | data source |
 
 ## Modules
 
@@ -58,4 +59,5 @@ No modules.
 | <a name="output_security_group_id"></a> [security\_group\_id](#output\_security\_group\_id) | The ID of the ALB security group |
 | <a name="output_target_group_arn"></a> [target\_group\_arn](#output\_target\_group\_arn) | The ARN of the Target Group |
 | <a name="output_target_group_name"></a> [target\_group\_name](#output\_target\_group\_name) | The name of the Target Group |
+| <a name="output_vpc_cidr_block"></a> [vpc\_cidr\_block](#output\_vpc\_cidr\_block) | The CIDR block of the VPC |
 <!-- END_TF_DOCS -->

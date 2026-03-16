@@ -2,6 +2,8 @@ locals {
   sg_name  = format("%s-alb-sg", var.environment)
   alb_name = format("%s-app-alb", var.environment)
   tg_name  = format("%s-app-tg", var.environment)
+
+  vpc_cidr_block = data.aws_vpc.self.cidr_block
 }
 
 resource "aws_security_group" "alb" {
@@ -15,6 +17,14 @@ resource "aws_security_group" "alb" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
     description = "Allow HTTP traffic"
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = [local.vpc_cidr_block]
+    description = "Allow API Gateway traffic on port 80"
   }
 
   egress {
