@@ -1,5 +1,5 @@
-# All API Gateway REST API (protocol: REST) resources and methods are defined in this file.
-# The API Gateway is configured to integrate with the ALB using HTTP proxy integration, so there are no Lambda functions or other backend integrations defined here.
+# All API Gateway (REST API) resources are defined in this file.
+# The API Gateway is configured to integrate with the ALB using HTTP proxy integration.
 
 locals {
   apig_name = format("%s-%s-apig", var.environment, var.application_name)

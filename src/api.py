@@ -1031,8 +1031,16 @@ _SWAGGER_LIB_STATIC_DIR = _frs3_lib_dir / "static"
 
 @app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/api/doc/swagger.json")
 def _swagger_spec():  # noqa: ANN202
+    # When behind API Gateway, override servers so Swagger UI sends requests
+    # through APIG (which enforces the API key) rather than directly to the ALB.
+    prefix = get_base_path() or _swagger_config.get("path_prefix", "").rstrip("/")
+    if prefix:
+        spec = copy.deepcopy(app.api.open_api_object)
+        spec["servers"] = [{"url": f"/{prefix.lstrip('/')}"}]
+    else:
+        spec = app.api.open_api_object
     return (
-        json.dumps(app.api.open_api_object),
+        json.dumps(spec),
         200,
         {"Content-Type": "application/json"},
     )
