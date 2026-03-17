@@ -213,8 +213,9 @@ module "apig_api_key_test" {
   environment      = var.environment
   application_name = var.application_name
 
-  api_id     = aws_api_gateway_rest_api.this.id
-  stage_name = aws_api_gateway_stage.this.stage_name
+  api_id         = aws_api_gateway_rest_api.this.id
+  stage_name     = aws_api_gateway_stage.this.stage_name
+  regenerate_key = true
 
   key_name_suffix = random_id.temp_key.hex
   usage_plan_id   = random_id.temp_key.keepers.usage_plan_id
@@ -223,7 +224,7 @@ module "apig_api_key_test" {
 }
 
 resource "random_id" "temp_key" {
-  byte_length = 8
+  byte_length = 4
 
   keepers = {
     key_name_suffix = local.commit_hash

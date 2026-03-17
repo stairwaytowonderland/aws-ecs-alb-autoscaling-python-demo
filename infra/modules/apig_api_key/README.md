@@ -24,6 +24,7 @@ module "example" {
 	plan_name_suffix = null
 	quota_limit = 10
 	quota_period = "MONTH"
+	regenerate_key = false
 	tags = {
   "ManagedBy": "Terraform"
 }
@@ -40,6 +41,7 @@ module "example" {
 | [aws_api_gateway_api_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_api_key) | resource |
 | [aws_api_gateway_usage_plan.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_usage_plan) | resource |
 | [aws_api_gateway_usage_plan_key.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_usage_plan_key) | resource |
+| [random_id.key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 
 ## Modules
 
@@ -58,6 +60,7 @@ No modules.
 | <a name="input_plan_name_suffix"></a> [plan\_name\_suffix](#input\_plan\_name\_suffix) | Optional suffix appended before the resource-type token in the usage plan name (e.g. 'convert' → '{env}-{app}-convert-usage-plan'). If null, name is '{env}-{app}-usage-plan'. | `string` | `null` | no |
 | <a name="input_quota_limit"></a> [quota\_limit](#input\_quota\_limit) | Maximum number of requests allowed in the quota period (ignored when usage\_plan\_id is set) | `number` | `10` | no |
 | <a name="input_quota_period"></a> [quota\_period](#input\_quota\_period) | Period for the quota limit: DAY, WEEK, or MONTH (ignored when usage\_plan\_id is set) | `string` | `"MONTH"` | no |
+| <a name="input_regenerate_key"></a> [regenerate\_key](#input\_regenerate\_key) | Whether to regenerate the API key | `bool` | `false` | no |
 | <a name="input_stage_name"></a> [stage\_name](#input\_stage\_name) | Name of the API Gateway stage to associate with the usage plan | `string` | n/a | yes |
 | <a name="input_tags"></a> [tags](#input\_tags) | A map of tags to assign to resources | `map(string)` | <pre>{<br/>  "ManagedBy": "Terraform"<br/>}</pre> | no |
 | <a name="input_throttle_burst_limit"></a> [throttle\_burst\_limit](#input\_throttle\_burst\_limit) | Maximum request burst size (token-bucket capacity) (ignored when usage\_plan\_id is set) | `number` | `5` | no |

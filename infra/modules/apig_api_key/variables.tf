@@ -61,6 +61,13 @@ variable "key_name_suffix" {
   default     = null
 }
 
+variable "regenerate_key" {
+  description = "Whether to regenerate the API key"
+  type        = bool
+  nullable    = false
+  default     = false
+}
+
 variable "plan_name_suffix" {
   description = "Optional suffix appended before the resource-type token in the usage plan name (e.g. 'convert' → '{env}-{app}-convert-usage-plan'). If null, name is '{env}-{app}-usage-plan'."
   type        = string
