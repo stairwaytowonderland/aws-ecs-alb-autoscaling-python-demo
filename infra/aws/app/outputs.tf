@@ -61,7 +61,7 @@ output "apig_invoke_url" {
 
 output "apig_convert_api_key_id" {
   description = "ID of the API key for /convert endpoints (retrieve value with: aws apigateway get-api-key --api-key <id> --include-value)"
-  value       = aws_api_gateway_api_key.convert.id
+  value       = module.apig_api_key_convert.api_key_id
 }
 
 output "commit_hash" {

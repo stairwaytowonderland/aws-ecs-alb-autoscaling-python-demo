@@ -182,54 +182,46 @@ resource "aws_api_gateway_integration" "convert_pdf" {
 
 # -----------------------------------------------------------------------------
 # API Key & Usage Plan
-# TODO: Create module
-# Module inputs would include:
-# - application name & environment (for naming & tags)
-# - usage_plan_id (if reusing an existing usage plan, e.g. shared across multiple APIs - if null, create new usage plan)
-# - key_name_suffix (if not null, append to API key name for additional clarity, e.g. "${var.environment}-${var.application_name}-convert-api-key-${var.key_name_suffix}")
-# - plan_name_suffix (if not null, append to usage plan name for additional clarity, e.g. "${var.environment}-${var.application_name}-convert-usage-plan-${var.plan_name_suffix}")
-# - api_id
-# - stage_name
-# - usage plan settings (throttle & quota)
-# - tags (using established convention)
 # -----------------------------------------------------------------------------
 
-resource "aws_api_gateway_api_key" "convert" {
-  name        = format("%s-%s-convert-api-key", var.environment, var.application_name)
-  description = "API key for /convert endpoints"
-  enabled     = true
+module "apig_api_key_convert" {
+  source = "../../modules/apig_api_key"
+
+  environment      = var.environment
+  application_name = var.application_name
+
+  api_id     = aws_api_gateway_rest_api.this.id
+  stage_name = aws_api_gateway_stage.this.stage_name
+
+  key_name_suffix  = "convert"
+  plan_name_suffix = "convert"
+
+  key_description  = "API key for /convert endpoints"
+  plan_description = "Usage plan for /convert endpoints"
+
+  quota_limit  = var.apig_usage_plan_quota_limit
+  quota_period = var.apig_usage_plan_quota_period
+
+  throttle_burst_limit = var.apig_usage_plan_throttle_burst_limit
+  throttle_rate_limit  = var.apig_usage_plan_throttle_rate_limit
 
   tags = local.tags
 }
 
-resource "aws_api_gateway_usage_plan" "convert" {
-  name        = format("%s-%s-convert-usage-plan", var.environment, var.application_name)
-  description = "Usage plan for /convert endpoints"
-
-  # 10 per month
-  quota_settings {
-    limit  = var.apig_usage_plan_quota_limit # 10
-    offset = 0
-    period = var.apig_usage_plan_quota_period #"MONTH"
-  }
-
-  throttle_settings {
-    burst_limit = var.apig_usage_plan_throttle_burst_limit # 5
-    rate_limit  = var.apig_usage_plan_throttle_rate_limit  # 10
-  }
-
-  api_stages {
-    api_id = aws_api_gateway_rest_api.this.id
-    stage  = aws_api_gateway_stage.this.stage_name
-  }
-
-  tags = local.tags
+# State migration: inline resources moved into the module above.
+moved {
+  from = aws_api_gateway_api_key.convert
+  to   = module.apig_api_key_convert.aws_api_gateway_api_key.this
 }
 
-resource "aws_api_gateway_usage_plan_key" "convert" {
-  key_id        = aws_api_gateway_api_key.convert.id
-  key_type      = "API_KEY"
-  usage_plan_id = aws_api_gateway_usage_plan.convert.id
+moved {
+  from = aws_api_gateway_usage_plan.convert
+  to   = module.apig_api_key_convert.aws_api_gateway_usage_plan.this[0]
+}
+
+moved {
+  from = aws_api_gateway_usage_plan_key.convert
+  to   = module.apig_api_key_convert.aws_api_gateway_usage_plan_key.this
 }
 
 # -----------------------------------------------------------------------------
