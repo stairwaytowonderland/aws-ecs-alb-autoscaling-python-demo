@@ -49,6 +49,16 @@ output "ec2_private_key_pem_path" {
   value       = local.ec2_private_key_pem_path
 }
 
+output "apig_id" {
+  description = "ID of the API Gateway REST API"
+  value       = aws_api_gateway_rest_api.this.id
+}
+
+output "apig_invoke_url" {
+  description = "Invoke URL for the API Gateway stage"
+  value       = aws_api_gateway_stage.this.invoke_url
+}
+
 output "commit_hash" {
   description = "Git commit hash used for the Docker image tag"
   value       = local.commit_hash
