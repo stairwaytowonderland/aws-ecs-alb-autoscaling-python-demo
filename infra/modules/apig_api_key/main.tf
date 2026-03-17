@@ -12,7 +12,7 @@ locals {
   plan_name = var.plan_name_suffix != null ? format("%s-%s-%s-usage-plan", var.environment, var.application_name, var.plan_name_suffix) : format("%s-%s-usage-plan", var.environment, var.application_name)
 
   # Resolve to the existing plan ID when provided, otherwise the newly created one.
-  usage_plan_id = var.existing_usage_plan_id != null ? var.existing_usage_plan_id : one(aws_api_gateway_usage_plan.this[*]).id
+  usage_plan_id = var.usage_plan_id != null ? var.usage_plan_id : one(aws_api_gateway_usage_plan.this[*]).id
 }
 
 resource "aws_api_gateway_api_key" "this" {
@@ -24,7 +24,7 @@ resource "aws_api_gateway_api_key" "this" {
 }
 
 resource "aws_api_gateway_usage_plan" "this" {
-  count = var.existing_usage_plan_id == null ? 1 : 0
+  count = var.usage_plan_id == null ? 1 : 0
 
   name        = local.plan_name
   description = var.plan_description

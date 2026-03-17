@@ -76,13 +76,13 @@ variable "key_description" {
 }
 
 variable "plan_description" {
-  description = "Human-readable description of the usage plan (ignored when existing_usage_plan_id is set)"
+  description = "Human-readable description of the usage plan (ignored when usage_plan_id is set)"
   type        = string
   nullable    = true
   default     = null
 }
 
-variable "existing_usage_plan_id" {
+variable "usage_plan_id" {
   description = "ID of an existing usage plan to associate the key with. When set, no new usage plan is created."
   type        = string
   nullable    = true
@@ -90,14 +90,14 @@ variable "existing_usage_plan_id" {
 }
 
 variable "quota_limit" {
-  description = "Maximum number of requests allowed in the quota period (ignored when existing_usage_plan_id is set)"
+  description = "Maximum number of requests allowed in the quota period (ignored when usage_plan_id is set)"
   type        = number
   nullable    = false
   default     = 10
 }
 
 variable "quota_period" {
-  description = "Period for the quota limit: DAY, WEEK, or MONTH (ignored when existing_usage_plan_id is set)"
+  description = "Period for the quota limit: DAY, WEEK, or MONTH (ignored when usage_plan_id is set)"
   type        = string
   nullable    = false
   default     = "MONTH"
@@ -109,14 +109,14 @@ variable "quota_period" {
 }
 
 variable "throttle_burst_limit" {
-  description = "Maximum request burst size (token-bucket capacity) (ignored when existing_usage_plan_id is set)"
+  description = "Maximum request burst size (token-bucket capacity) (ignored when usage_plan_id is set)"
   type        = number
   nullable    = false
   default     = 5
 }
 
 variable "throttle_rate_limit" {
-  description = "Steady-state request rate limit in requests per second (ignored when existing_usage_plan_id is set)"
+  description = "Steady-state request rate limit in requests per second (ignored when usage_plan_id is set)"
   type        = number
   nullable    = false
   default     = 10

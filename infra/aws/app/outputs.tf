@@ -64,6 +64,21 @@ output "apig_convert_api_key_id" {
   value       = module.apig_api_key_convert.api_key_id
 }
 
+output "apig_convert_api_key_name" {
+  description = "Name of the API key for /convert endpoints"
+  value       = module.apig_api_key_convert.api_key_name
+}
+
+output "apig_test_api_key_id" {
+  description = "ID of the API key for testing (retrieve value with: aws apigateway get-api-key --api-key <id> --include-value)"
+  value       = module.apig_api_key_test.api_key_id
+}
+
+output "apig_test_api_key_name" {
+  description = "Name of the API key for testing"
+  value       = module.apig_api_key_test.api_key_name
+}
+
 output "commit_hash" {
   description = "Git commit hash used for the Docker image tag"
   value       = local.commit_hash

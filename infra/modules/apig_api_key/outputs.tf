@@ -14,6 +14,6 @@ output "usage_plan_id" {
 }
 
 output "usage_plan_name" {
-  description = "Name of the newly created usage plan (null when existing_usage_plan_id is provided)"
-  value       = var.existing_usage_plan_id == null ? one(aws_api_gateway_usage_plan.this[*]).name : null
+  description = "Name of the newly created usage plan (null when usage_plan_id is provided)"
+  value       = var.usage_plan_id == null ? one(aws_api_gateway_usage_plan.this[*]).name : null
 }

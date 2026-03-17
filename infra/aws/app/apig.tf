@@ -204,24 +204,31 @@ module "apig_api_key_convert" {
 
   throttle_burst_limit = var.apig_usage_plan_throttle_burst_limit
   throttle_rate_limit  = var.apig_usage_plan_throttle_rate_limit
-
-  tags = local.tags
 }
 
-# State migration: inline resources moved into the module above.
-moved {
-  from = aws_api_gateway_api_key.convert
-  to   = module.apig_api_key_convert.aws_api_gateway_api_key.this
+# Create another api key, for one-off testing, using the same usage plan as the "convert" key.
+module "apig_api_key_test" {
+  source = "../../modules/apig_api_key"
+
+  environment      = var.environment
+  application_name = var.application_name
+
+  api_id     = aws_api_gateway_rest_api.this.id
+  stage_name = aws_api_gateway_stage.this.stage_name
+
+  key_name_suffix = random_id.temp_key.hex
+  usage_plan_id   = random_id.temp_key.keepers.usage_plan_id
+
+  key_description = "API key for testing purposes"
 }
 
-moved {
-  from = aws_api_gateway_usage_plan.convert
-  to   = module.apig_api_key_convert.aws_api_gateway_usage_plan.this[0]
-}
+resource "random_id" "temp_key" {
+  byte_length = 8
 
-moved {
-  from = aws_api_gateway_usage_plan_key.convert
-  to   = module.apig_api_key_convert.aws_api_gateway_usage_plan_key.this
+  keepers = {
+    key_name_suffix = local.commit_hash
+    usage_plan_id   = module.apig_api_key_convert.usage_plan_id
+  }
 }
 
 # -----------------------------------------------------------------------------

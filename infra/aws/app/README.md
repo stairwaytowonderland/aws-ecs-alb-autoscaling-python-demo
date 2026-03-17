@@ -70,6 +70,7 @@ module "example" {
 | [aws_api_gateway_stage.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/api_gateway_stage) | resource |
 | [aws_iam_role_policy.dynamodb_access](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/iam_role_policy) | resource |
 | [local_file.private_key_pem_file](https://registry.terraform.io/providers/hashicorp/local/latest/docs/resources/file) | resource |
+| [random_id.temp_key](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/id) | resource |
 | [aws_caller_identity.this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 | [aws_ecr_authorization_token.token](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ecr_authorization_token) | data source |
 | [aws_instances.running](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/instances) | data source |
@@ -83,6 +84,7 @@ module "example" {
 |------|--------|---------|
 | <a name="module_alb"></a> [alb](#module\_alb) | ../../modules/alb | n/a |
 | <a name="module_apig_api_key_convert"></a> [apig\_api\_key\_convert](#module\_apig\_api\_key\_convert) | ../../modules/apig_api_key | n/a |
+| <a name="module_apig_api_key_test"></a> [apig\_api\_key\_test](#module\_apig\_api\_key\_test) | ../../modules/apig_api_key | n/a |
 | <a name="module_docker"></a> [docker](#module\_docker) | ../../modules/docker | n/a |
 | <a name="module_dynamodb"></a> [dynamodb](#module\_dynamodb) | ../../modules/dynamodb | n/a |
 | <a name="module_ec2_autoscaling"></a> [ec2\_autoscaling](#module\_ec2\_autoscaling) | ../../modules/ec2 | n/a |
@@ -120,8 +122,11 @@ module "example" {
 | <a name="output_alb_dns_name"></a> [alb\_dns\_name](#output\_alb\_dns\_name) | DNS name of the Application Load Balancer |
 | <a name="output_ami_id"></a> [ami\_id](#output\_ami\_id) | ID of the AMI used for EC2 instances |
 | <a name="output_apig_convert_api_key_id"></a> [apig\_convert\_api\_key\_id](#output\_apig\_convert\_api\_key\_id) | ID of the API key for /convert endpoints (retrieve value with: aws apigateway get-api-key --api-key <id> --include-value) |
+| <a name="output_apig_convert_api_key_name"></a> [apig\_convert\_api\_key\_name](#output\_apig\_convert\_api\_key\_name) | Name of the API key for /convert endpoints |
 | <a name="output_apig_id"></a> [apig\_id](#output\_apig\_id) | ID of the API Gateway REST API |
 | <a name="output_apig_invoke_url"></a> [apig\_invoke\_url](#output\_apig\_invoke\_url) | Invoke URL for the API Gateway stage |
+| <a name="output_apig_test_api_key_id"></a> [apig\_test\_api\_key\_id](#output\_apig\_test\_api\_key\_id) | ID of the API key for testing (retrieve value with: aws apigateway get-api-key --api-key <id> --include-value) |
+| <a name="output_apig_test_api_key_name"></a> [apig\_test\_api\_key\_name](#output\_apig\_test\_api\_key\_name) | Name of the API key for testing |
 | <a name="output_app_url"></a> [app\_url](#output\_app\_url) | URL to access the application via the load balancer |
 | <a name="output_commit_hash"></a> [commit\_hash](#output\_commit\_hash) | Git commit hash used for the Docker image tag |
 | <a name="output_ec2_private_key_pem"></a> [ec2\_private\_key\_pem](#output\_ec2\_private\_key\_pem) | PEM-encoded private key for EC2 instances |
