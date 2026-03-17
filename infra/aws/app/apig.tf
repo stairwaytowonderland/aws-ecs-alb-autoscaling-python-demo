@@ -42,6 +42,24 @@ resource "aws_api_gateway_resource" "swagger_proxy" {
   path_part   = "{proxy+}"
 }
 
+resource "aws_api_gateway_resource" "convert" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  parent_id   = aws_api_gateway_rest_api.this.root_resource_id
+  path_part   = "convert"
+}
+
+resource "aws_api_gateway_resource" "convert_docx" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  parent_id   = aws_api_gateway_resource.convert.id
+  path_part   = "docx"
+}
+
+resource "aws_api_gateway_resource" "convert_pdf" {
+  rest_api_id = aws_api_gateway_rest_api.this.id
+  parent_id   = aws_api_gateway_resource.convert.id
+  path_part   = "pdf"
+}
+
 # -----------------------------------------------------------------------------
 # Methods
 # -----------------------------------------------------------------------------
@@ -76,6 +94,22 @@ resource "aws_api_gateway_method" "swagger_proxy" {
   request_parameters = {
     "method.request.path.proxy" = true
   }
+}
+
+resource "aws_api_gateway_method" "convert_docx" {
+  rest_api_id      = aws_api_gateway_rest_api.this.id
+  resource_id      = aws_api_gateway_resource.convert_docx.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = true
+}
+
+resource "aws_api_gateway_method" "convert_pdf" {
+  rest_api_id      = aws_api_gateway_rest_api.this.id
+  resource_id      = aws_api_gateway_resource.convert_pdf.id
+  http_method      = "POST"
+  authorization    = "NONE"
+  api_key_required = true
 }
 
 # -----------------------------------------------------------------------------
@@ -128,9 +162,55 @@ resource "aws_api_gateway_integration" "swagger_proxy" {
   }
 }
 
+resource "aws_api_gateway_integration" "convert_docx" {
+  rest_api_id             = aws_api_gateway_rest_api.this.id
+  resource_id             = aws_api_gateway_resource.convert_docx.id
+  http_method             = aws_api_gateway_method.convert_docx.http_method
+  type                    = "HTTP_PROXY"
+  integration_http_method = "POST"
+  uri                     = "http://${local.alb_dns_name}/convert/docx"
+}
+
+resource "aws_api_gateway_integration" "convert_pdf" {
+  rest_api_id             = aws_api_gateway_rest_api.this.id
+  resource_id             = aws_api_gateway_resource.convert_pdf.id
+  http_method             = aws_api_gateway_method.convert_pdf.http_method
+  type                    = "HTTP_PROXY"
+  integration_http_method = "POST"
+  uri                     = "http://${local.alb_dns_name}/convert/pdf"
+}
+
 # -----------------------------------------------------------------------------
-# Deployment & Stage
+# API Key & Usage Plan
 # -----------------------------------------------------------------------------
+
+resource "aws_api_gateway_api_key" "convert" {
+  name        = format("%s-%s-convert-api-key", var.environment, var.application_name)
+  description = "API key for /convert endpoints"
+  enabled     = true
+
+  tags = local.tags
+}
+
+resource "aws_api_gateway_usage_plan" "convert" {
+  name        = format("%s-%s-convert-usage-plan", var.environment, var.application_name)
+  description = "Usage plan for /convert endpoints"
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.this.id
+    stage  = aws_api_gateway_stage.this.stage_name
+  }
+
+  tags = local.tags
+}
+
+resource "aws_api_gateway_usage_plan_key" "convert" {
+  key_id        = aws_api_gateway_api_key.convert.id
+  key_type      = "API_KEY"
+  usage_plan_id = aws_api_gateway_usage_plan.convert.id
+}
+
+
 
 resource "aws_api_gateway_deployment" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
@@ -141,14 +221,21 @@ resource "aws_api_gateway_deployment" "this" {
       aws_api_gateway_resource.gtg,
       aws_api_gateway_resource.swagger,
       aws_api_gateway_resource.swagger_proxy,
+      aws_api_gateway_resource.convert,
+      aws_api_gateway_resource.convert_docx,
+      aws_api_gateway_resource.convert_pdf,
       aws_api_gateway_method.root,
       aws_api_gateway_method.gtg,
       aws_api_gateway_method.swagger,
       aws_api_gateway_method.swagger_proxy,
+      aws_api_gateway_method.convert_docx,
+      aws_api_gateway_method.convert_pdf,
       aws_api_gateway_integration.root,
       aws_api_gateway_integration.gtg,
       aws_api_gateway_integration.swagger,
       aws_api_gateway_integration.swagger_proxy,
+      aws_api_gateway_integration.convert_docx,
+      aws_api_gateway_integration.convert_pdf,
     ]))
   }
 
@@ -161,6 +248,8 @@ resource "aws_api_gateway_deployment" "this" {
     aws_api_gateway_integration.gtg,
     aws_api_gateway_integration.swagger,
     aws_api_gateway_integration.swagger_proxy,
+    aws_api_gateway_integration.convert_docx,
+    aws_api_gateway_integration.convert_pdf,
   ]
 }
 

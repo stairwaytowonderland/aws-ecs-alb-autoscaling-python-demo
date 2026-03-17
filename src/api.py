@@ -221,7 +221,8 @@ class BaseApi:
         self._host = self._api_config.server.get("host")
         self._port = self._api_config.server.get("port")
 
-        _intro_doc = f"""
+        _intro_doc = textwrap.dedent(
+            f"""
 ## An API for converting *markdown resumes* to ATS-friendly formats
 
 ### Overview
@@ -263,6 +264,7 @@ curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
 
 ### For live examples, see the following [API Demo](http://{self._host}:{self._port}/swagger#/Convert/post_convert_pdf) (below ⬇️)
         """
+        ).strip()
 
         self.title = title or api_config.config.get(
             "title", "Resume Markdown Converter API"
@@ -283,7 +285,7 @@ curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
         self._api = Api(
             flask_app,
             title=self.title,
-            description=textwrap.dedent(self.description).strip(),
+            description=self.description,
             version=self.version,
             swagger_prefix_url=self.swagger_prefix_url,
         )
@@ -976,11 +978,21 @@ _FORM_REQUEST_BODY = {
     "required": False,
 }
 _spec = app.api.open_api_object
+
+# Register the API key security scheme so Swagger UI shows the Authorize button.
+_spec.setdefault("components", {}).setdefault("securitySchemes", {})["ApiKeyAuth"] = {
+    "type": "apiKey",
+    "in": "header",
+    "name": "x-api-key",
+    "description": "API key required for /convert endpoints",
+}
+
 for _path in ("/convert/docx", "/convert/pdf"):
     _spec["paths"][_path]["post"]["requestBody"] = copy.deepcopy(_FORM_REQUEST_BODY)
     _spec["paths"][_path]["post"].setdefault("parameters", []).append(
         copy.deepcopy(_CONFIG_OPTIONS_PARAM),
     )
+    _spec["paths"][_path]["post"]["security"] = [{"ApiKeyAuth": []}]
 
 
 # get_swagger_blueprint has two quirks that require workarounds:
@@ -1018,7 +1030,7 @@ _SWAGGER_LIB_STATIC_DIR = _frs3_lib_dir / "static"
 
 
 @app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/api/doc/swagger.json")
-def _swagger_spec():
+def _swagger_spec():  # noqa: ANN202
     return (
         json.dumps(app.api.open_api_object),
         200,
@@ -1028,7 +1040,7 @@ def _swagger_spec():
 
 @app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}", strict_slashes=False)
 @app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/index.html")
-def _swagger_index():
+def _swagger_index():  # noqa: ANN202
     prefix = get_base_path() or _swagger_config.get("path_prefix", "").rstrip("/")
     base_url = (
         f"/{prefix.lstrip('/')}{_SWAGGER_BLUEPRINT_PREFIX}"
@@ -1053,7 +1065,7 @@ def _swagger_index():
 
 
 @app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/<path:path>")
-def _swagger_static_assets(path):
+def _swagger_static_assets(path: str):  # noqa: ANN202
     return send_from_directory(_SWAGGER_LIB_STATIC_DIR, path)
 
 

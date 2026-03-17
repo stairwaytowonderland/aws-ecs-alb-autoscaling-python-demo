@@ -59,6 +59,11 @@ output "apig_invoke_url" {
   value       = aws_api_gateway_stage.this.invoke_url
 }
 
+output "apig_convert_api_key_id" {
+  description = "ID of the API key for /convert endpoints (retrieve value with: aws apigateway get-api-key --api-key <id> --include-value)"
+  value       = aws_api_gateway_api_key.convert.id
+}
+
 output "commit_hash" {
   description = "Git commit hash used for the Docker image tag"
   value       = local.commit_hash
