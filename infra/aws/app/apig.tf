@@ -219,7 +219,7 @@ module "apig_api_key_test" {
   key_name_suffix = random_id.temp_key.hex
   usage_plan_id   = random_id.temp_key.keepers.usage_plan_id
 
-  key_description = "API key for testing purposes"
+  key_description = "API key for testing purposes (001)"
 }
 
 resource "random_id" "temp_key" {
