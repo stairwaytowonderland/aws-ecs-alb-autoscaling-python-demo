@@ -27,6 +27,10 @@ module "example" {
 
 	# Optional variables
 	additional_tags = {}
+	apig_usage_plan_quota_limit = 10
+	apig_usage_plan_quota_period = "MONTH"
+	apig_usage_plan_throttle_burst_limit = 5
+	apig_usage_plan_throttle_rate_limit = 10
 	assume_ecr_repository = true
 	create_custom_ami = false
 	create_local_pem_file = false
@@ -90,6 +94,10 @@ module "example" {
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_additional_tags"></a> [additional\_tags](#input\_additional\_tags) | Additional tags to apply to all resources | `map(any)` | `{}` | no |
+| <a name="input_apig_usage_plan_quota_limit"></a> [apig\_usage\_plan\_quota\_limit](#input\_apig\_usage\_plan\_quota\_limit) | The maximum number of requests that can be made in a given period | `number` | `10` | no |
+| <a name="input_apig_usage_plan_quota_period"></a> [apig\_usage\_plan\_quota\_period](#input\_apig\_usage\_plan\_quota\_period) | The period for the usage plan quota (e.g., DAY, WEEK, MONTH) | `string` | `"MONTH"` | no |
+| <a name="input_apig_usage_plan_throttle_burst_limit"></a> [apig\_usage\_plan\_throttle\_burst\_limit](#input\_apig\_usage\_plan\_throttle\_burst\_limit) | The maximum number of requests that can be made in a short period | `number` | `5` | no |
+| <a name="input_apig_usage_plan_throttle_rate_limit"></a> [apig\_usage\_plan\_throttle\_rate\_limit](#input\_apig\_usage\_plan\_throttle\_rate\_limit) | The maximum number of requests per second | `number` | `10` | no |
 | <a name="input_application_name"></a> [application\_name](#input\_application\_name) | Name of the application | `string` | n/a | yes |
 | <a name="input_assume_ecr_repository"></a> [assume\_ecr\_repository](#input\_assume\_ecr\_repository) | Flag to use an ECR repository for Docker images | `bool` | `true` | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | The AWS region to deploy resources in | `string` | n/a | yes |

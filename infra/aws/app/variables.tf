@@ -98,3 +98,27 @@ variable "dockerfile_path_rel" {}
 variable "health_check_path" {}
 
 variable "health_check_timeout" {}
+
+variable "apig_usage_plan_quota_limit" {
+  description = "The maximum number of requests that can be made in a given period"
+  type        = number
+  default     = 10
+}
+
+variable "apig_usage_plan_quota_period" {
+  description = "The period for the usage plan quota (e.g., DAY, WEEK, MONTH)"
+  type        = string
+  default     = "MONTH"
+}
+
+variable "apig_usage_plan_throttle_burst_limit" {
+  description = "The maximum number of requests that can be made in a short period"
+  type        = number
+  default     = 5
+}
+
+variable "apig_usage_plan_throttle_rate_limit" {
+  description = "The maximum number of requests per second"
+  type        = number
+  default     = 10
+}
