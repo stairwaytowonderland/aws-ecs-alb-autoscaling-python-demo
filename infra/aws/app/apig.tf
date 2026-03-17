@@ -107,6 +107,11 @@ resource "aws_api_gateway_integration" "swagger" {
   type                    = "HTTP_PROXY"
   integration_http_method = "ANY"
   uri                     = "http://${local.alb_dns_name}/swagger"
+
+  # Inject the API Gateway stage name so the app can build correct asset URLs.
+  request_parameters = {
+    "integration.request.header.X-Forwarded-Prefix" = "context.stage"
+  }
 }
 
 resource "aws_api_gateway_integration" "swagger_proxy" {
@@ -118,7 +123,8 @@ resource "aws_api_gateway_integration" "swagger_proxy" {
   uri                     = "http://${local.alb_dns_name}/swagger/{proxy}"
 
   request_parameters = {
-    "integration.request.path.proxy" = "method.request.path.proxy"
+    "integration.request.path.proxy"                = "method.request.path.proxy"
+    "integration.request.header.X-Forwarded-Prefix" = "context.stage"
   }
 }
 

@@ -14,16 +14,10 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 import yaml
-from flask import Flask, request
+from flask import Flask, render_template_string, request, send_from_directory
 from flask.wrappers import Response
 from flask_restful import reqparse
-from flask_restful_swagger_3 import (
-    Api,
-    Resource,
-    Schema,
-    get_swagger_blueprint,
-    swagger,
-)
+from flask_restful_swagger_3 import Api, Resource, Schema, swagger
 from werkzeug.datastructures import FileStorage
 
 try:
@@ -199,11 +193,22 @@ class ApiConfig:
 class BaseApi:
     """Base class for Flask application"""
 
-    def __init__(self, api_config_file: Path) -> None:
+    def __init__(
+        self,
+        api_config_file: Path,
+        title: str | None = None,
+        description: str | None = None,
+        version: str | None = None,
+        swagger_prefix_url: str | None = None,
+    ) -> None:
         """Initialize the API Base
 
         Args:
             api_config_file (Path): Path to the API configuration file
+            title (str | None): Title of the API
+            description (str | None): Description of the API
+            version (str | None): Version of the API
+            swagger_prefix_url (str | None): Swagger prefix URL
 
         """
         # Load application configuration
@@ -212,18 +217,79 @@ class BaseApi:
         # Create Flask application
         flask_app = Flask(__name__.split(".", maxsplit=1)[0])
 
-        self._app = flask_app
         self._api_config = api_config
-        self._api = Api(
-            flask_app,
-            title="Resume Markdown to DOCX API",
-            description="API for converting markdown resumes to ATS-friendly formats",
-            version="1.0",
-            swagger_prefix_url="/api/doc",
-        )
-
         self._host = self._api_config.server.get("host")
         self._port = self._api_config.server.get("port")
+
+        _intro_doc = f"""
+## An API for converting *markdown resumes* to ATS-friendly formats
+
+### Overview
+
+This API provides endpoints to convert ***markdown resumes*** to ATS-friendly formats (DOCX and PDF).
+
+- **Markdown resumes** must follow a specific structure to ensure accurate parsing and conversion.
+- The API accepts markdown input either as a file upload or directly in the request body, along with optional configuration overrides for customizing the output.
+
+### API Examples
+
+#### Basic Conversion to DOCX
+
+```bash
+curl -X POST "http://{self._host}:{self._port}/convert/docx" \\
+-F "input_file=@resume.md" \\
+-o resume_converted.docx
+```
+
+#### Convert to PDF with *custom configuration*
+
+```bash
+curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
+-F "input_file=@resume.md" \\
+-F "config_options={{\\"style_constants\\": {{\\"paragraph_lists\\": true}}, {{\\"Title\\": {{\\"font_name\\": \\"Times New Roman\\"}}}}}}" \\
+-o resume_converted.pdf
+```
+
+#### Convert to PDF with *custom configuration*, using *raw markdown* in request body
+
+```bash
+curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
+-H "Accept: application/octet-stream" \\
+-F "config_options={{\\"paragraph_lists\\": false}}" \\
+-d "$(cat <<'EOT' \n...resume markdown contents...\nEOT\n)" -o resume_converted.docx
+```
+
+<br />
+
+### For live examples, see the following [API Demo](http://{self._host}:{self._port}/swagger#/Convert/post_convert_pdf) (below ⬇️)
+        """
+
+        self.title = title or api_config.config.get(
+            "title", "Resume Markdown Converter API"
+        )
+        self.description = description or api_config.config.get(
+            "description",
+            _intro_doc or "API for converting markdown resumes to ATS-friendly formats",
+        )
+        self.version = version or api_config.config.get("version", "1.0")
+        self.swagger_prefix_url = swagger_prefix_url or api_config.config.get(
+            "swagger_prefix_url",
+            "/api/doc",
+        )
+
+        self._app = flask_app
+        self._api_config = api_config
+
+        self._api = Api(
+            flask_app,
+            title=self.title,
+            description=textwrap.dedent(self.description).strip(),
+            version=self.version,
+            swagger_prefix_url=self.swagger_prefix_url,
+        )
+
+        # self._host = self._api_config.server.get("host")
+        # self._port = self._api_config.server.get("port")
         # self._app.config["SERVER_NAME"] = f"{self._host}:{self._port}"
 
         self._app.logger.debug(f"API host: {self._host}")
@@ -928,75 +994,68 @@ for _path in ("/convert/docx", "/convert/pdf"):
 #    Fix: set the config key and push an app context before calling it.
 import flask_restful_swagger_3 as _frs3
 
-_INTRO_DOC = f"""
-## An API for converting *markdown resumes* to ATS-friendly formats
 
-### Overview
+def get_base_path() -> str:
+    """Get the stage prefix injected by API Gateway via X-Forwarded-Prefix.
 
-This API provides endpoints to convert ***markdown resumes*** to ATS-friendly formats (DOCX and PDF).
+    API Gateway integration request parameters must include:
+      ``"integration.request.header.X-Forwarded-Prefix" = "context.stage"``
+    """
+    return request.headers.get("X-Forwarded-Prefix", "").rstrip("/")
 
-- **Markdown resumes** must follow a specific structure to ensure accurate parsing and conversion.
-- The API accepts markdown input either as a file upload or directly in the request body, along with optional configuration overrides for customizing the output.
-
-### API Examples
-
-#### Basic Conversion to DOCX
-
-```bash
-curl -X POST "http://{app.host}:{app.port}/convert/docx" \\
-  -F "input_file=@resume.md" \\
-  -o resume_converted.docx
-```
-
-#### Convert to PDF with *custom configuration*
-
-```bash
-curl -X POST "http://{app.host}:{app.port}/convert/pdf" \\
-  -F "input_file=@resume.md" \\
-  -F "config_options={{\\"style_constants\\": {{\\"paragraph_lists\\": true}}, {{\\"Title\\": {{\\"font_name\\": \\"Times New Roman\\"}}}}}}" \\
-  -o resume_converted.pdf
-```
-
-#### Convert to PDF with *custom configuration*, using *raw markdown* in request body
-
-```bash
-curl -X POST "http://{app.host}:{app.port}/convert/pdf" \\
-  -H "Accept: application/octet-stream" \\
-  -F "config_options={{\\"paragraph_lists\\": false}}" \\
-  -d "$(cat <<'EOT' \n...resume markdown contents...\nEOT\n)" -o resume_converted.docx
-```
-
-<br />
-
-### For live examples, see the following [API Demo](http://{app.host}:{app.port}/swagger#/Convert/post_convert_pdf) (below ⬇️)
-"""
 
 _SWAGGER_BLUEPRINT_PREFIX = "/swagger"
 _swagger_config = app.api_config.config.get("swagger") or {}
-_swagger_path_prefix = _swagger_config.get("path_prefix", "").rstrip("/")
-app.app.config["SWAGGER_BLUEPRINT_URL_PREFIX"] = (
-    f"{_swagger_path_prefix}{_SWAGGER_BLUEPRINT_PREFIX}"
-)
-# When a path prefix is set the library would build the wrong spec URL, so override it explicitly.
-_swagger_spec_url = (
-    f"{_SWAGGER_BLUEPRINT_PREFIX}/api/doc/swagger.json"
-    if _swagger_path_prefix
-    else None
-)
-_original_validate = _frs3.validate_open_api_object
-_frs3.validate_open_api_object = lambda x: None  # noqa: ARG005
-with app.app.app_context():
-    swagger_bp = get_swagger_blueprint(
-        app.api.open_api_object,
-        swagger_prefix_url="/api/doc",
-        swagger_url="/swagger.json",
-        title="Resume Markdown to DOCX API",
-        version="1.0",
-        description=_INTRO_DOC,
-        config={"url": _swagger_spec_url} if _swagger_spec_url else None,
+
+# Load the Swagger UI template and static assets from the installed library.
+# Routes are registered directly on the app (no blueprint) so that
+# get_base_path() is called per-request and the base_url in the rendered HTML
+# reflects the X-Forwarded-Prefix header injected by API Gateway.
+_frs3_lib_dir = Path(_frs3.__file__).parent
+with (_frs3_lib_dir / "templates" / "index.template.html").open(encoding="utf-8") as _f:
+    _SWAGGER_INDEX_TEMPLATE = _f.read()
+_SWAGGER_LIB_STATIC_DIR = _frs3_lib_dir / "static"
+
+
+@app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/api/doc/swagger.json")
+def _swagger_spec():
+    return (
+        json.dumps(app.api.open_api_object),
+        200,
+        {"Content-Type": "application/json"},
     )
-_frs3.validate_open_api_object = _original_validate
-app.app.register_blueprint(swagger_bp, url_prefix="/swagger")
+
+
+@app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}", strict_slashes=False)
+@app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/index.html")
+def _swagger_index():
+    prefix = get_base_path() or _swagger_config.get("path_prefix", "").rstrip("/")
+    base_url = (
+        f"/{prefix.lstrip('/')}{_SWAGGER_BLUEPRINT_PREFIX}"
+        if prefix
+        else _SWAGGER_BLUEPRINT_PREFIX
+    )
+    spec_url = f"{base_url}/api/doc/swagger.json"
+    config_json = json.dumps(
+        {
+            "url": spec_url,
+            "dom_id": "#swagger-ui",
+            "layout": "StandaloneLayout",
+            "deepLinking": True,
+        }
+    )
+    return render_template_string(
+        _SWAGGER_INDEX_TEMPLATE,
+        base_url=base_url,
+        app_name=app.title,
+        config_json=config_json,
+    )
+
+
+@app.app.route(f"{_SWAGGER_BLUEPRINT_PREFIX}/<path:path>")
+def _swagger_static_assets(path):
+    return send_from_directory(_SWAGGER_LIB_STATIC_DIR, path)
+
 
 # Program description and epilog
 _PROGRAM_DESCRIPTION = """
