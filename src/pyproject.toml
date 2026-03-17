@@ -77,6 +77,7 @@ extend-ignore = [
 	"BLE",    # flake8-blind-except: blind exception catching (e.g. bare `except Exception`)
 	"EM",     # flake8-errmsg: exception messages (e.g. don't use string literals directly in `raise`)
 	"TRY002", # tryceratops: raise-vanilla-class: create your own exception class
+	"TRY003", # tryceratops: raise-vanilla-args: don't raise built-in exceptions with string literals
 	"TRY301", # tryceratops: raise-within-try: abstract `raise` to an inner function
 
 	# --- Output ---

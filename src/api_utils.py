@@ -4,9 +4,11 @@ import os
 import urllib
 import urllib.request
 
-health_check_timeout = os.environ.get(
-    "APP_HEALTH_CHECK_TIMEOUT",
-    os.environ.get("TF_VAR_app_health_check_timeout", "30"),  # noqa: SIM112
+health_check_timeout = int(
+    os.environ.get(
+        "APP_HEALTH_CHECK_TIMEOUT",
+        os.environ.get("TF_VAR_app_health_check_timeout", "30"),  # noqa: SIM112
+    )
 )
 
 
@@ -62,4 +64,8 @@ def get_instance_id(timeout: int) -> str:
 
     """
     token = _get_token(timeout)
+    if token is None:
+        raise Exception(
+            "Failed to retrieve IMDSv2 token from instance metadata service"
+        )
     return _get_instance_id(token)

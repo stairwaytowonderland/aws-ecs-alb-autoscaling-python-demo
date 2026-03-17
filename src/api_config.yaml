@@ -30,5 +30,11 @@ input:
 output:
   use_temp_directory: true
 
+swagger:
+  # Path prefix prepended to the Swagger UI mount point ("/swagger").
+  # Useful when the app sits behind a reverse proxy that strips a path prefix.
+  # e.g. with path_prefix: /myapp, assets load from /myapp/swagger instead of /swagger.
+  # path_prefix: dev-app-alb-744208816.us-east-2.elb.amazonaws.com:8000
+
 logging:
   level: INFO

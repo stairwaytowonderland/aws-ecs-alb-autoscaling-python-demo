@@ -971,7 +971,18 @@ curl -X POST "http://{app.host}:{app.port}/convert/pdf" \\
 ### For live examples, see the following [API Demo](http://{app.host}:{app.port}/swagger#/Convert/post_convert_pdf) (below ⬇️)
 """
 
-app.app.config["SWAGGER_BLUEPRINT_URL_PREFIX"] = "/swagger"
+_SWAGGER_BLUEPRINT_PREFIX = "/swagger"
+_swagger_config = app.api_config.config.get("swagger") or {}
+_swagger_path_prefix = _swagger_config.get("path_prefix", "").rstrip("/")
+app.app.config["SWAGGER_BLUEPRINT_URL_PREFIX"] = (
+    f"{_swagger_path_prefix}{_SWAGGER_BLUEPRINT_PREFIX}"
+)
+# When a path prefix is set the library would build the wrong spec URL, so override it explicitly.
+_swagger_spec_url = (
+    f"{_SWAGGER_BLUEPRINT_PREFIX}/api/doc/swagger.json"
+    if _swagger_path_prefix
+    else None
+)
 _original_validate = _frs3.validate_open_api_object
 _frs3.validate_open_api_object = lambda x: None  # noqa: ARG005
 with app.app.app_context():
@@ -982,8 +993,9 @@ with app.app.app_context():
         title="Resume Markdown to DOCX API",
         version="1.0",
         description=_INTRO_DOC,
+        config={"url": _swagger_spec_url} if _swagger_spec_url else None,
     )
-validate_open_api_object = _original_validate
+_frs3.validate_open_api_object = _original_validate
 app.app.register_blueprint(swagger_bp, url_prefix="/swagger")
 
 # Program description and epilog
