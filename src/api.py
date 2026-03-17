@@ -238,17 +238,23 @@ This API provides endpoints to convert ***markdown resumes*** to ATS-friendly fo
 
 ```bash
 curl -X POST "http://{self._host}:{self._port}/convert/docx" \\
--F "input_file=@resume.md" \\
--o resume_converted.docx
+-H "Accept: application/octet-stream" \\
+-H "Content-Type: multipart/form-data" \\
+-H "X-API-Key: YOUR_API_KEY" \\
+-F "input_file=@myresume.md" \\
+-o myresume_converted.docx
 ```
 
 #### Convert to PDF with *custom configuration*
 
 ```bash
 curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
--F "input_file=@resume.md" \\
+-H "Accept: application/octet-stream" \\
+-H "Content-Type: multipart/form-data" \\
+-H "X-API-Key: YOUR_API_KEY" \\
+-F "input_file=@myresume.md" \\
 -F "config_options={{\\"style_constants\\": {{\\"paragraph_lists\\": true}}, {{\\"Title\\": {{\\"font_name\\": \\"Times New Roman\\"}}}}}}" \\
--o resume_converted.pdf
+-o myresume_converted.pdf
 ```
 
 #### Convert to PDF with *custom configuration*, using *raw markdown* in request body
@@ -256,8 +262,10 @@ curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
 ```bash
 curl -X POST "http://{self._host}:{self._port}/convert/pdf" \\
 -H "Accept: application/octet-stream" \\
+-H "Content-Type: text/plain" \\
+-H "X-API-Key: YOUR_API_KEY" \\
 -F "config_options={{\\"paragraph_lists\\": false}}" \\
--d "$(cat <<'EOT' \n...resume markdown contents...\nEOT\n)" -o resume_converted.docx
+-d "$(cat <<'EOT' \n...resume markdown contents...\nEOT\n)" -o myresume_converted.pdf
 ```
 
 <br />
