@@ -1,0 +1,18 @@
+{
+	"servers": {
+		"drawio": {
+			"command": "npx",
+			"args": [
+				"-y",
+				"https://github.com/aws-samples/sample-drawio-mcp/releases/latest/download/drawio-mcp-server-latest.tgz",
+				"--no-cache"
+			],
+			"type": "stdio"
+		},
+		"github": {
+			"type": "http",
+			"url": "https://api.githubcopilot.com/mcp/"
+		}
+	},
+	"inputs": []
+}
