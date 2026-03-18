@@ -1,8 +1,7 @@
-# Candidate App
+# Resume Converter
 
-A Flask-based API demo (for managing candidate data).
-
-Deployed on AWS using Terraform and Docker, in an Auto Scaling group, behind an Application Load Balancer.
+Deployed on AWS using Terraform and Docker, in an Auto Scaling group, behind an Application Load Balancer
+and fronted with API Gateway.
 
 ## Prerequisites
 
@@ -22,10 +21,10 @@ Deployed on AWS using Terraform and Docker, in an Auto Scaling group, behind an 
 - **Language:** Python 3 (Flask)
 - **API Endpoints:**
   - `GET /gtg` — Health check
-  - `GET /gtg?details` — Detailed health check
-  - `POST /candidate/<name>` — Add a candidate (optional `?party=` query)
-  - `GET /candidate/<name>` — Get candidate info
-  - `GET /candidates` — List all candidates
+  - `GET /gtg?details` — Detailed health check (queries EC2 IMDSv2 for instance ID)
+  - `GET /swagger` — OpenAPI 3 (Swagger) UI (proxies asset sub-paths via `/swagger/{proxy+}`)
+  - `POST /convert/docx` — Convert markdown resume to DOCX (**requires `x-api-key` header via API Gateway**)
+  - `POST /convert/pdf` — Convert markdown resume to PDF (**requires `x-api-key` header via API Gateway**)
 
 - **Data Store:** AWS DynamoDB
   - Table: `Candidates`
@@ -42,6 +41,10 @@ Deployed on AWS using Terraform and Docker, in an Auto Scaling group, behind an 
 - **Provisioned with:** Terraform (modular, in `infra/`)
 - **Cloud:** AWS (us-east-2)
 - **Key Components:**
+  - **API Gateway:** Regional REST API fronting the ALB — routes `/gtg`, `/swagger`, `/convert/*`
+    - `/convert/docx` and `/convert/pdf` enforce `x-api-key` authentication
+    - `/swagger` and `/swagger/{proxy+}` inject `X-Forwarded-Prefix` (stage name) so the app builds correct asset URLs
+    - Integrates via HTTP_PROXY to the ALB
   - **VPC:** 2 public subnets (multi-AZ)
   - **EC2:** Auto Scaling Group (t2.micro, free tier)
   - **ALB:** Application Load Balancer (port 80)
@@ -53,8 +56,8 @@ Deployed on AWS using Terraform and Docker, in an Auto Scaling group, behind an 
   - `infra/aws/backend/` — Terraform backend state resources
   - `infra/aws/bootstrap/` — Bootstrap IAM/OIDC
   - `infra/aws/platform/` — Core infrastructure (VPC, ECR, ALB, etc.)
-  - `infra/aws/app/` — Application runtime (ASG, DynamoDB, etc.)
-  - `infra/modules/` — Reusable infra modules (alb, vpc, ecr, dynamodb, etc.)
+  - `infra/aws/app/` — Application runtime (ASG, DynamoDB, API Gateway, etc.)
+  - `infra/modules/` — Reusable infra modules (alb, vpc, ecr, dynamodb, apig_api_key, etc.)
 
 ## Terraform
 
@@ -71,6 +74,7 @@ infra/
     ├── alb/                 # Application Load Balancer
     |-- backend/             # Backend configuration for Terraform state
     ├── docker/              # Docker build and push
+    ├── apig_api_key/        # API Gateway API key + usage plan
     ├── dynamodb/            # DynamoDB table
     ├── ec2/                 # EC2 multi-purpose module
     ├── ecr/                 # Elastic Container Registry
@@ -134,6 +138,7 @@ For implementation and usage details of the `modules` directory, see the full [d
 each module:
 
 - [alb](./infra/modules/alb/README.md)
+- [apig_api_key](./infra/modules/apig_api_key/README.md)
 - [backend](./infra/modules/backend/README.md)
 - [docker](./infra/modules/docker/README.md)
 - [platform](./infra/modules/platform/README.md)

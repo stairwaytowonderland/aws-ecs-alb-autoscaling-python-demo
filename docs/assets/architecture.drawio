@@ -1,17 +1,17 @@
 <mxfile host="65bd71144e">
     <diagram id="R93wuUJCukHf24gyeRGc" name="Page-1">
-        <mxGraphModel dx="575" dy="933" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="1150" math="0" shadow="0">
+        <mxGraphModel dx="829" dy="1153" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1850" pageHeight="1350" math="0" shadow="0">
             <root>
                 <mxCell id="0"/>
                 <mxCell id="1" parent="0"/>
                 <mxCell id="user" value="&lt;b&gt;Internet User&lt;/b&gt;" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#232F3E;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=1;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.aws4.user;" parent="1" vertex="1">
-                    <mxGeometry x="40" y="420" width="60" height="60" as="geometry"/>
+                    <mxGeometry x="40" y="540" width="60" height="60" as="geometry"/>
                 </mxCell>
                 <mxCell id="github" value="&lt;b&gt;GitHub Actions&lt;/b&gt;&lt;br&gt;(CI/CD)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#232F3E;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=1;verticalLabelPosition=bottom;verticalAlign=top;shape=mxgraph.aws4.traditional_server;" parent="1" vertex="1">
                     <mxGeometry x="40" y="130" width="60" height="60" as="geometry"/>
                 </mxCell>
-                <mxCell id="aws_cloud" value="&lt;b&gt;AWS Cloud — us-east-2&lt;/b&gt;" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=#FAFAFA;verticalAlign=top;align=left;spacingLeft=32;fontColor=#232F3E;dashed=0;movable=0;resizable=0;rotatable=0;deletable=0;editable=0;locked=1;connectable=0;" parent="1" vertex="1">
-                    <mxGeometry x="170" y="30" width="1630" height="1080" as="geometry"/>
+                <mxCell id="aws_cloud" value="&lt;b&gt;AWS Cloud — us-east-2&lt;/b&gt;" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=13;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_aws_cloud_alt;strokeColor=#232F3E;fillColor=#FAFAFA;verticalAlign=top;align=left;spacingLeft=32;fontColor=#232F3E;dashed=0;movable=1;resizable=1;rotatable=1;deletable=1;editable=1;locked=0;connectable=1;" parent="1" vertex="1">
+                    <mxGeometry x="170" y="30" width="2130" height="1280" as="geometry"/>
                 </mxCell>
                 <mxCell id="lbl_bootstrap" value="&lt;b&gt;Bootstrap / CI-CD&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#555555;" parent="1" vertex="1">
                     <mxGeometry x="210" y="60" width="410" height="30" as="geometry"/>
@@ -29,7 +29,7 @@
                     <mxGeometry x="210" y="250" width="410" height="30" as="geometry"/>
                 </mxCell>
                 <mxCell id="ecr" value="&lt;b&gt;ECR Repository&lt;/b&gt;&lt;br&gt;(Flask App Image)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#C7131F;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ecr;" parent="1" vertex="1">
-                    <mxGeometry x="215" y="295" width="78" height="78" as="geometry"/>
+                    <mxGeometry x="215" y="260" width="78" height="78" as="geometry"/>
                 </mxCell>
                 <mxCell id="lbl_state" value="&lt;b&gt;Terraform State / Backend&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=11;fontStyle=1;fontColor=#555555;" parent="1" vertex="1">
                     <mxGeometry x="210" y="460" width="410" height="30" as="geometry"/>
@@ -43,56 +43,88 @@
                 <mxCell id="iam_ec2_role" value="&lt;b&gt;IAM Role&lt;/b&gt;&lt;br&gt;(EC2 Instance)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#BF0816;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.role;" parent="1" vertex="1">
                     <mxGeometry x="215" y="700" width="78" height="78" as="geometry"/>
                 </mxCell>
+                <mxCell id="apig_box" value="&lt;b&gt;API Gateway — REST API (Regional)&lt;/b&gt;" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_api_gateway;strokeColor=#E7157B;fillColor=#FCF0F6;verticalAlign=top;align=left;spacingLeft=32;fontColor=#E7157B;dashed=0;" parent="1" vertex="1">
+                    <mxGeometry x="660" y="55" width="480" height="340" as="geometry"/>
+                </mxCell>
+                <mxCell id="apig" value="&lt;b&gt;API Gateway&lt;/b&gt;&lt;br&gt;{env}-{app}-apig&lt;br&gt;(REGIONAL)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#E7157B;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.api_gateway;" parent="1" vertex="1">
+                    <mxGeometry x="790" y="110" width="78" height="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="apig_stage_label" value="Stage: {env}  |  Invoke URL: https://{id}.execute-api.{region}.amazonaws.com/{env}" style="text;html=1;strokeColor=#E7157B;fillColor=#FCF0F6;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=2;fontColor=#A0007A;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="80" width="460" height="20" as="geometry"/>
+                </mxCell>
+                <mxCell id="apig_routes_label" value="Routes:  GET /gtg (open)  |  ANY /swagger, /swagger/{proxy+} (open, X-Forwarded-Prefix → stage)  |  POST /convert/docx, /convert/pdf (x-api-key required)" style="text;html=1;strokeColor=#E7157B;fillColor=#FCF0F6;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=0;fontColor=#A0007A;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="260" width="460" height="32" as="geometry"/>
+                </mxCell>
+                <mxCell id="apig_key_box" value="&lt;b&gt;API Key + Usage Plan&lt;/b&gt;&lt;br&gt;module: apig_api_key&lt;br&gt;convert key + test key&lt;br&gt;(quota / throttle enforced)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#d6b656;fontSize=10;fontStyle=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="670" y="303" width="220" height="70" as="geometry"/>
+                </mxCell>
+                <mxCell id="apig_http_proxy_label" value="Integration: HTTP_PROXY → ALB" style="text;html=1;strokeColor=#E7157B;fillColor=#FCF0F6;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=2;fontColor=#A0007A;" parent="1" vertex="1">
+                    <mxGeometry x="900" y="360" width="230" height="20" as="geometry"/>
+                </mxCell>
                 <mxCell id="vpc" value="&lt;b&gt;VPC — dev-vpc&lt;/b&gt;" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=12;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_vpc2;strokeColor=#8C4FFF;fillColor=none;verticalAlign=top;align=left;spacingLeft=32;fontColor=#8C4FFF;dashed=0;" parent="1" vertex="1">
-                    <mxGeometry x="660" y="55" width="1120" height="1020" as="geometry"/>
+                    <mxGeometry x="1170" y="55" width="1100" height="1220" as="geometry"/>
                 </mxCell>
                 <mxCell id="igw" value="&lt;b&gt;Internet Gateway&lt;/b&gt;" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#8C4FFF;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.internet_gateway;" parent="1" vertex="1">
-                    <mxGeometry x="1180" y="110" width="78" height="78" as="geometry"/>
+                    <mxGeometry x="1640" y="110" width="78" height="78" as="geometry"/>
                 </mxCell>
                 <mxCell id="alb_sg_label" value="SG: port 80 inbound (0.0.0.0/0)" style="text;html=1;strokeColor=#FF8000;fillColor=#FFF3E0;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;fontColor=#BF5000;" parent="1" vertex="1">
-                    <mxGeometry x="940" y="288" width="230" height="24" as="geometry"/>
+                    <mxGeometry x="1400" y="377" width="230" height="24" as="geometry"/>
                 </mxCell>
                 <mxCell id="alb" value="&lt;b&gt;ALB&lt;/b&gt;&lt;br&gt;dev-app-alb&lt;br&gt;(Internet-facing, :80)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#8C4FFF;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.application_load_balancer;" parent="1" vertex="1">
-                    <mxGeometry x="1180" y="270" width="78" height="78" as="geometry"/>
+                    <mxGeometry x="1640" y="350" width="78" height="78" as="geometry"/>
                 </mxCell>
                 <mxCell id="tg_label" value="Target Group — dev-app-tg  |  :8000 HTTP  |  Health: /gtg" style="text;html=1;strokeColor=#8C4FFF;fillColor=#F5F0FF;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=10;fontStyle=2;fontColor=#5500BB;" parent="1" vertex="1">
-                    <mxGeometry x="1270" y="349" width="380" height="24" as="geometry"/>
+                    <mxGeometry x="1730" y="429" width="380" height="24" as="geometry"/>
                 </mxCell>
                 <mxCell id="asg" value="&lt;b&gt;EC2 Auto Scaling Group — dev-app-asg&lt;/b&gt;&lt;br&gt;min=1 | desired=2 | max=2" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=11;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_auto_scaling_group;strokeColor=#CF7429;fillColor=none;verticalAlign=top;align=left;spacingLeft=32;fontColor=#CF7429;dashed=0;" parent="1" vertex="1">
-                    <mxGeometry x="680" y="440" width="1080" height="580" as="geometry"/>
+                    <mxGeometry x="1190" y="510" width="1060" height="710" as="geometry"/>
                 </mxCell>
                 <mxCell id="subnet_az1" value="&lt;b&gt;Public Subnet — AZ1&lt;/b&gt;" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=11;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_public_subnet;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=32;fontColor=#147EBA;dashed=0;" parent="1" vertex="1">
-                    <mxGeometry x="700" y="490" width="450" height="500" as="geometry"/>
+                    <mxGeometry x="1210" y="560" width="400" height="350" as="geometry"/>
                 </mxCell>
                 <mxCell id="ec2_a" value="&lt;b&gt;EC2 Instance A&lt;/b&gt;&lt;br&gt;t2.micro" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#ED7100;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" parent="1" vertex="1">
-                    <mxGeometry x="810" y="570" width="78" height="78" as="geometry"/>
+                    <mxGeometry x="1290" y="640" width="78" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="lt_a" value="Launch Template: dev-app-launch-template" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#555555;" parent="1" vertex="1">
-                    <mxGeometry x="855" y="648" width="260" height="20" as="geometry"/>
+                <mxCell id="docker_a" value="🐳 &lt;b&gt;Flask App&lt;/b&gt; :8000 (gunicorn)&lt;br&gt;Python 3.14 + LibreOffice&lt;br&gt;TC_DYNAMO_TABLE env var" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="1350" y="760" width="240" height="58" as="geometry"/>
                 </mxCell>
-                <mxCell id="docker_a" value="🐳 &lt;b&gt;Flask App&lt;/b&gt; :8000&lt;br&gt;TC_DYNAMO_TABLE env var" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=center;" parent="1" vertex="1">
-                    <mxGeometry x="760" y="694" width="220" height="50" as="geometry"/>
+                <mxCell id="imds_a" value="EC2 IMDSv2&lt;br&gt;169.254.169.254&lt;br&gt;(/gtg?details)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2;fontColor=#333333;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="1270" y="850" width="160" height="46" as="geometry"/>
                 </mxCell>
                 <mxCell id="sg_a" value="SG: :8000 (VPC), :22 (0.0.0.0/0)" style="text;html=1;strokeColor=#C0C0C0;fillColor=#F8F8F8;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=2;fontColor=#555555;" parent="1" vertex="1">
-                    <mxGeometry x="720" y="790" width="260" height="20" as="geometry"/>
+                    <mxGeometry x="1340" y="590" width="260" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="subnet_az2" value="&lt;b&gt;Public Subnet — AZ2&lt;/b&gt;" style="points=[[0,0],[0.25,0],[0.5,0],[0.75,0],[1,0],[1,0.25],[1,0.5],[1,0.75],[1,1],[0.75,1],[0.5,1],[0.25,1],[0,1],[0,0.75],[0,0.5],[0,0.25]];outlineConnect=0;gradientColor=none;html=1;whiteSpace=wrap;fontSize=11;fontStyle=1;container=0;pointerEvents=0;collapsible=0;recursiveResize=0;shape=mxgraph.aws4.group;grIcon=mxgraph.aws4.group_public_subnet;strokeColor=#147EBA;fillColor=#E6F2F8;verticalAlign=top;align=left;spacingLeft=32;fontColor=#147EBA;dashed=0;" parent="1" vertex="1">
-                    <mxGeometry x="1290" y="490" width="450" height="500" as="geometry"/>
+                    <mxGeometry x="1740" y="560" width="400" height="350" as="geometry"/>
                 </mxCell>
                 <mxCell id="ec2_b" value="&lt;b&gt;EC2 Instance B&lt;/b&gt;&lt;br&gt;t2.micro" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#ED7100;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.ec2;" parent="1" vertex="1">
-                    <mxGeometry x="1504" y="570" width="78" height="78" as="geometry"/>
+                    <mxGeometry x="1910" y="640" width="78" height="78" as="geometry"/>
                 </mxCell>
-                <mxCell id="lt_b" value="Launch Template: dev-app-launch-template" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=9;fontStyle=2;fontColor=#555555;" parent="1" vertex="1">
-                    <mxGeometry x="1280" y="648" width="260" height="20" as="geometry"/>
+                <mxCell id="docker_b" value="🐳 &lt;b&gt;Flask App&lt;/b&gt; :8000 (gunicorn)&lt;br&gt;Python 3.14 + LibreOffice&lt;br&gt;TC_DYNAMO_TABLE env var" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="1760" y="760" width="240" height="58" as="geometry"/>
                 </mxCell>
-                <mxCell id="docker_b" value="🐳 &lt;b&gt;Flask App&lt;/b&gt; :8000&lt;br&gt;TC_DYNAMO_TABLE env var" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontSize=10;fontStyle=0;align=center;" parent="1" vertex="1">
-                    <mxGeometry x="1425" y="694" width="220" height="50" as="geometry"/>
+                <mxCell id="imds_b" value="EC2 IMDSv2&lt;br&gt;169.254.169.254&lt;br&gt;(/gtg?details)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f5f5f5;strokeColor=#666666;fontSize=9;fontStyle=2;fontColor=#333333;align=center;" parent="1" vertex="1">
+                    <mxGeometry x="1920" y="850" width="160" height="46" as="geometry"/>
                 </mxCell>
                 <mxCell id="sg_b" value="SG: :8000 (VPC), :22 (0.0.0.0/0)" style="text;html=1;strokeColor=#C0C0C0;fillColor=#F8F8F8;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=1;fontSize=9;fontStyle=2;fontColor=#555555;" parent="1" vertex="1">
-                    <mxGeometry x="1310" y="790" width="260" height="20" as="geometry"/>
+                    <mxGeometry x="1750" y="590" width="260" height="20" as="geometry"/>
                 </mxCell>
                 <mxCell id="ddb_app" value="&lt;b&gt;DynamoDB&lt;/b&gt;&lt;br&gt;Candidates Table&lt;br&gt;(PAY_PER_REQUEST)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#C7131F;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.dynamodb;" parent="1" vertex="1">
-                    <mxGeometry x="1180" y="890" width="78" height="78" as="geometry"/>
+                    <mxGeometry x="1640" y="970" width="78" height="78" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_user_apig" value="HTTPS" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="user" target="apig" edge="1">
+                    <mxGeometry relative="1" as="geometry">
+                        <Array as="points">
+                            <mxPoint x="140" y="570"/>
+                            <mxPoint x="140" y="149"/>
+                            <mxPoint x="790" y="149"/>
+                        </Array>
+                    </mxGeometry>
+                </mxCell>
+                <mxCell id="e_apig_igw" value="HTTP_PROXY" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="apig" target="igw" edge="1">
+                    <mxGeometry x="0.0674" y="9" relative="1" as="geometry">
+                        <mxPoint as="offset"/>
+                    </mxGeometry>
                 </mxCell>
                 <mxCell id="e_igw_alb" value="" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;endArrow=block;endFill=1;" parent="1" source="igw" target="alb" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
@@ -100,44 +132,47 @@
                 <mxCell id="e_alb_ec2a" value="forward :8000" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="alb" target="ec2_a" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
-                            <mxPoint x="1180" y="470"/>
-                            <mxPoint x="849" y="470"/>
+                            <mxPoint x="1420" y="540"/>
+                            <mxPoint x="1419" y="540"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="e_alb_ec2b" value="forward :8000" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="alb" target="ec2_b" edge="1">
                     <mxGeometry relative="1" as="geometry">
                         <Array as="points">
-                            <mxPoint x="1258" y="470"/>
-                            <mxPoint x="1543" y="470"/>
+                            <mxPoint x="1718" y="540"/>
+                            <mxPoint x="1949" y="540"/>
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="e_ec2a_docker" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.96;entryY=-0.023;entryDx=0;entryDy=0;fontSize=10;endArrow=block;endFill=1;entryPerimeter=0;" parent="1" source="ec2_a" target="docker_a" edge="1">
+                <mxCell id="e_ec2a_docker" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;endArrow=block;endFill=1;" parent="1" source="ec2_a" target="docker_a" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="e_ec2b_docker" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.031;entryY=-0.009;entryDx=0;entryDy=0;fontSize=10;endArrow=block;endFill=1;entryPerimeter=0;" parent="1" source="ec2_b" target="docker_b" edge="1">
+                <mxCell id="e_ec2b_docker" value="runs" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=10;endArrow=block;endFill=1;" parent="1" source="ec2_b" target="docker_b" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_docker_a_imds" value="GET token + instance-id" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=9;fontStyle=2;endArrow=open;endFill=0;dashed=1;" parent="1" source="docker_a" target="imds_a" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
+                </mxCell>
+                <mxCell id="e_docker_b_imds" value="GET token + instance-id" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;fontSize=9;fontStyle=2;endArrow=open;endFill=0;dashed=1;" parent="1" source="docker_b" target="imds_b" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="e_ec2a_ddb" value="boto3 query/put" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="docker_a" target="ddb_app" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="e_ec2b_ddb" value="boto3 query/put" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=1;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="docker_b" target="ddb_app" edge="1">
-                    <mxGeometry x="0.0473" relative="1" as="geometry">
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="e_ec2a_ecr" value="docker pull" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=0;exitY=0.5;exitDx=0;exitDy=0;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" edge="1">
+                <mxCell id="e_ec2a_ecr" value="docker pull" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" edge="1">
                     <mxGeometry relative="1" as="geometry">
-                        <mxPoint x="810" y="636" as="sourcePoint"/>
-                        <mxPoint x="254" y="410" as="targetPoint"/>
+                        <mxPoint x="1380" y="679" as="sourcePoint"/>
+                        <mxPoint x="254" y="380" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="e_ec2b_ecr" value="docker pull" style="edgeStyle=orthogonalEdgeStyle;html=1;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" edge="1">
-                    <mxGeometry x="-0.9104" relative="1" as="geometry">
-                        <mxPoint x="1504" y="617.0232558139535" as="sourcePoint"/>
-                        <mxPoint x="274" y="410" as="targetPoint"/>
-                        <mxPoint as="offset"/>
+                    <mxGeometry relative="1" as="geometry">
+                        <mxPoint x="1910" y="679" as="sourcePoint"/>
+                        <mxPoint x="274" y="370" as="targetPoint"/>
                     </mxGeometry>
                 </mxCell>
                 <mxCell id="e_oidc_iamgh" value="assumes" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="github_oidc" target="iam_github_role" edge="1">
@@ -149,10 +184,10 @@
                         <mxPoint as="offset"/>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="e_iamec2_ec2a" value="instance profile" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" source="iam_ec2_role" target="ec2_a" edge="1">
+                <mxCell id="e_iamec2_ec2a" value="instance profile" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" source="iam_ec2_role" target="ec2_a" edge="1">
                     <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
-                <mxCell id="e_iamec2_ec2b" value="instance profile" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" source="iam_ec2_role" target="ec2_b" edge="1">
+                <mxCell id="e_iamec2_ec2b" value="instance profile" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.25;exitDx=0;exitDy=0;dashed=1;fontSize=10;fontStyle=1;endArrow=open;endFill=0;" parent="1" source="iam_ec2_role" target="ec2_b" edge="1">
                     <mxGeometry x="0.6483" relative="1" as="geometry">
                         <mxPoint as="offset"/>
                     </mxGeometry>
@@ -166,15 +201,8 @@
                         </Array>
                     </mxGeometry>
                 </mxCell>
-                <mxCell id="e_user_igw" value="HTTP :80" style="edgeStyle=orthogonalEdgeStyle;html=1;entryX=0;entryY=0.5;entryDx=0;entryDy=0;fontSize=10;fontStyle=1;endArrow=block;endFill=1;" parent="1" source="user" target="igw" edge="1">
-                    <mxGeometry x="-0.2878" relative="1" as="geometry">
-                        <mxPoint x="97" y="450" as="sourcePoint"/>
-                        <Array as="points">
-                            <mxPoint x="639" y="450"/>
-                            <mxPoint x="639" y="149"/>
-                        </Array>
-                        <mxPoint as="offset"/>
-                    </mxGeometry>
+                <mxCell id="e_apikey_apig" value="enforces x-api-key" style="edgeStyle=orthogonalEdgeStyle;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=1;entryDx=0;entryDy=0;fontSize=9;fontStyle=2;endArrow=open;endFill=0;dashed=1;" parent="1" source="apig_key_box" target="apig" edge="1">
+                    <mxGeometry relative="1" as="geometry"/>
                 </mxCell>
                 <mxCell id="s3_tfstate" value="&lt;b&gt;S3 Bucket&lt;/b&gt;&lt;br&gt;(TF State)" style="outlineConnect=0;fontColor=#232F3E;gradientColor=none;strokeColor=none;fillColor=#7AA116;labelBackgroundColor=#ffffff;align=center;html=1;fontSize=11;fontStyle=0;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.s3;" parent="1" vertex="1">
                     <mxGeometry x="215" y="505" width="78" height="78" as="geometry"/>
