@@ -30,3 +30,6 @@ infra/aws/**/cloudformation/**/.terraform.lock.hcl
 # PYTHON
 __pycache__/
 .venv/
+
+# MARKDOWN
+INTERNAL_*.md
