@@ -189,7 +189,7 @@ aws-destroy-auto: .app-infra-destroy-auto .platform-infra-destroy-auto .bootstra
 .bootstrap-infra-destroy:
 	( \
   cd infra/aws/bootstrap; \
-  terraform init -reconfigure; \
+  terraform init -reconfigure -backend-config=env/$(ENVIRONMENT)-$(AWS_REGION).$(AUTO_BACKEND_EXT); \
   terraform destroy -var-file env/$(ENVIRONMENT)-$(AWS_REGION).tfvars; \
 )
 
